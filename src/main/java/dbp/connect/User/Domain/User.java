@@ -7,6 +7,7 @@ import dbp.connect.Comentarios.Domain.Comentario;
 import dbp.connect.FriendRequest.Domain.FriendshipRequest;
 import dbp.connect.Friendship.Domain.Friendship;
 import dbp.connect.Likes.Domain.Like;
+import dbp.connect.Lugares.Domain.Lugares;
 import dbp.connect.Mensaje.Domain.Mensaje;
 import dbp.connect.Notificaciones.Domain.Notificaciones;
 import dbp.connect.PublicacionInicio.Domain.PublicacionInicio;
@@ -130,6 +131,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<FriendshipRequest> receivedFriendRequests = new HashSet<>();
+
+    @OneToMany
+    private List<Lugares> lugares;
     public User removeMensaje(Mensaje mensaje) {
         this.mensaje.remove(mensaje);
         mensaje.setAutor(null);

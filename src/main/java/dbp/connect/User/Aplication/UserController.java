@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateUserNameAndProfileDTO update) throws Exception {
+    public ResponseEntity<Void> updateProfile(@RequestHeader("Authorization") String token, @ModelAttribute UpdateUserNameAndProfileDTO update) throws Exception {
         UserProfileDTO userProfDTO = userService.finddUserProfile(token);
         userService.UpdateUser(userProfDTO.getId(), update);
         return ResponseEntity.accepted().build();

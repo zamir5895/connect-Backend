@@ -100,9 +100,7 @@ public class UserService {
     }
     public UserProfileDTO finddUserProfile(String jwt) throws UserException, BadCredentialException {
         String email =  authorizationUtils.authenticateUser();
-        if(email ==null){
-            throw new BadCredentialException("You are not authorized");
-        }
+
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserException("User not found"));
         UserProfileDTO userProfileDTO = new UserProfileDTO();
         userProfileDTO.setId(user.getId());
@@ -130,6 +128,9 @@ public class UserService {
             String fotoUrl = storageService.obtenerURL(objectKey);
             user.setFotoUrl(fotoUrl);
         }
+        user.setDireccion(update.getDireccion());
+        user.setDescripcion(update.getDescripcion());
+        user.setFechaNacimiento(update.getFechaNacimiento());
         userRepository.save(user);
 
 

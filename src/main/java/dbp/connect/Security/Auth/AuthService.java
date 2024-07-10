@@ -53,7 +53,6 @@ public class AuthService {
         if (userOptional.isPresent()) {
             throw new RuntimeException("User already exists");
         }
-        //TRAVELER, HOST, BOTH
         User newuser = mapear(authRegisterRequest);
         newuser.setPassword(passwordEncoder.encode(authRegisterRequest.getPassword()));
         newuser.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
@@ -63,6 +62,7 @@ public class AuthService {
             else if(authRegisterRequest.getRole().toUpperCase().equals("HOST")){
                 newuser.setRole(Rol.HOST);}
         }
+        newuser.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
         System.out.println(newuser);
         System.out.println(newuser.getRole());
         userRepository.save(newuser);
