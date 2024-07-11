@@ -17,7 +17,6 @@ public class PublicacionInicioResponseDTO {
     private Long id;
     private String contenido;
     private String fotPerfilUrl;
-    @NotNull
     private String username;
     private Integer cantidadLikes;
     private Integer cantidadComentarios;
