@@ -44,7 +44,10 @@ public class PublicacionAlojamientoController {
         System.out.println(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
         return ResponseEntity.ok(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
     }
-
+    @GetMapping()
+    public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPublicacionesAlojamiento(@RequestParam int page, int size) {
+        return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionesAlojamiento(page, size));
+    }
    /* @GetMapping("{userId}")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPorPublicacionParaUsuario(@PathVariable Long userId,
                                                                                            @RequestParam int page, int size) {

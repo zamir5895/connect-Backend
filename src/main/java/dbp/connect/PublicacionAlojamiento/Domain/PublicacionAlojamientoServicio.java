@@ -160,7 +160,7 @@ public class PublicacionAlojamientoServicio {
     }*/
 
 
-    private Page<ResponsePublicacionAlojamiento> ObtenerTodos(Integer page, Integer size){
+    public Page<ResponsePublicacionAlojamiento> getPublicacionesAlojamiento(int page, int size){
         Pageable pageable = PageRequest.of(page, size);
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findAll(pageable);
         return publicaciones.map(publicacionAlojamiento -> {
