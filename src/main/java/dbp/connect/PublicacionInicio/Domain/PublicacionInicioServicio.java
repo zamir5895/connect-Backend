@@ -167,20 +167,16 @@ public class PublicacionInicioServicio {
 
         return new PageImpl<>(publicacionesInicio, pageable, publicaciones.getTotalElements());
     }
-    public Page<PublicacionInicioResponseDTO> encontrarTodos(int page , int size){
+    public Page<PublicacionInicioResponseDTO> encontrarTodos(int page, int size){
         Pageable pageable = PageRequest.of(page, size);
-        Page<PublicacionInicio> publicaciones = publicacionInicioRepositorio.findAll(pageable);
+        Page<PublicacionInicio> publicaciones = publicacionInicioRepositorio.findAllByOrderByFechaPublicacionDesc(pageable);
         List<PublicacionInicioResponseDTO> publicacionesInicio = publicaciones.getContent().stream()
                 .map(this::converToDto)
                 .collect(Collectors.toList());
 
-        while (publicacionesInicio.size() < size && !publicacionesInicio.isEmpty()) {
-            PublicacionInicioResponseDTO defaultPublicacion = publicacionesInicio.get(publicacionesInicio.size() - 1);
-            publicacionesInicio.add(defaultPublicacion);
-        }
-
         return new PageImpl<>(publicacionesInicio, pageable, publicaciones.getTotalElements());
     }
+
 
     private PublicacionInicioResponseDTO converToDto(PublicacionInicio inicio){
         PublicacionInicioResponseDTO dto = new PublicacionInicioResponseDTO();

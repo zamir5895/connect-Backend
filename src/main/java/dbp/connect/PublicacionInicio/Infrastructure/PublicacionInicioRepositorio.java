@@ -15,4 +15,7 @@ public interface PublicacionInicioRepositorio extends JpaRepository<PublicacionI
         Page<PublicacionInicio> findByCuerpoContaining(@Param("palabraClave") String palabraClave, Pageable pageable);
 
     Page<PublicacionInicio> findByAutorP_Id(Long usuarioId, Pageable pageable);
+    Page<PublicacionInicio> findAllByOrderByFechaPublicacionDesc(Pageable pageable);
+
+
 }

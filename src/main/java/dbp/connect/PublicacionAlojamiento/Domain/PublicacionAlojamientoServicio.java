@@ -2,9 +2,12 @@ package dbp.connect.PublicacionAlojamiento.Domain;
 
 import com.uber.h3core.H3Core;
 import dbp.connect.Alojamiento.Domain.Alojamiento;
+import dbp.connect.Alojamiento.Domain.Estado;
 import dbp.connect.Alojamiento.Infrastructure.AlojamientoRepositorio;
 import dbp.connect.AlojamientoMultimedia.DTOS.ResponseMultimediaDTO;
 import dbp.connect.AlojamientoMultimedia.Domain.AlojamientoMultimedia;
+import dbp.connect.AlojamientoMultimedia.Domain.AlojamientoMultimediaServicio;
+import dbp.connect.AlojamientoMultimedia.Infrastructure.AlojamientoMultimediaRepositorio;
 import dbp.connect.PublicacionAlojamiento.DTOS.PostPublicacionAlojamientoDTO;
 import dbp.connect.PublicacionAlojamiento.DTOS.ResponsePublicacionAlojamiento;
 import dbp.connect.PublicacionAlojamiento.Exceptions.PublicacionAlojamientoNotFoundException;
@@ -12,6 +15,7 @@ import dbp.connect.PublicacionAlojamiento.Infrastructure.PublicacionAlojamientoR
 import dbp.connect.PublicacionInicioMultimedia.DTOS.MultimediaInicioDTO;
 import dbp.connect.PublicacionInicioMultimedia.Domain.PublicacionInicioMultimedia;
 import dbp.connect.Review.Domain.ReviewServicio;
+import dbp.connect.User.Domain.User;
 import dbp.connect.User.Infrastructure.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -43,23 +48,42 @@ public class PublicacionAlojamientoServicio {
 
     @Autowired
     private ReviewServicio reviewServicio;
+    @Autowired
+    private AlojamientoMultimediaServicio alojamientoMultimediaServicio;
+    @Autowired
+    private AlojamientoMultimediaRepositorio alojamientoMultimediaRepositorio;
+
+
+
 
     public ResponsePublicacionAlojamiento guardarPublicacionAlojamiento(PostPublicacionAlojamientoDTO publicacionAlojamientoDTO){
+        Alojamiento alojamiento = new Alojamiento();
+        User currentPropietario = userRepository.findById(publicacionAlojamientoDTO.getAlojamiento().getPropietarioId()).
+                orElseThrow(()-> new RuntimeException("Propietario no encontrado"));
 
-        Optional<PublicacionAlojamiento> publicacionAlojamiento = publicacionAlojamientoRepositorio.findById(publicacionAlojamientoDTO.getId());
-        if(publicacionAlojamiento.isPresent()) {
-            throw new EntityExistsException("La publicacion ya existe");
-        }
+        alojamiento.setPropietario(currentPropietario);
+        alojamiento.setFechaPublicacion(LocalDateTime.now(ZoneId.systemDefault()));
+        alojamiento.setDescripcion(publicacionAlojamientoDTO.getAlojamiento().getDescripcion());
+        alojamiento.setLongitude(publicacionAlojamientoDTO.getAlojamiento().getLongitude());
+        alojamiento.setLatitude(publicacionAlojamientoDTO.getAlojamiento().getLatitude());
+        alojamiento.setEstado(Estado.DISPONIBLE);
+        alojamiento.setPrecio(publicacionAlojamientoDTO.getAlojamiento().getPrecio());
 
-        Optional<Alojamiento> alojamiento = alojamientoRepositorio.findById(publicacionAlojamientoDTO.getAlojamientoId());
-        if(alojamiento.isEmpty()) {
-            throw new EntityExistsException("El alojamiento no existe");
+        for (MultipartFile archivo : publicacionAlojamientoDTO.getAlojamiento().getMultimedia()) {
+            AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
+            multimedia.setAlojamiento(alojamiento);
+            alojamientoMultimediaRepositorio.save(multimedia);
+            alojamiento.getAlojamientoMultimedia().add(multimedia);
+
         }
-        Alojamiento alojamientoResponse = alojamientoRepositorio.save(alojamiento.get());
+        alojamientoRepositorio.save(alojamiento);
+
+
+
         PublicacionAlojamiento nuevaPublicacion = new PublicacionAlojamiento();
 
-        nuevaPublicacion.setAlojamientoP(alojamientoResponse);
-        nuevaPublicacion.setId(alojamientoResponse.getId());
+        nuevaPublicacion.setAlojamientoP(alojamiento);
+        nuevaPublicacion.setId(alojamiento.getId());
         nuevaPublicacion.setFecha(ZonedDateTime.now(ZoneId.systemDefault()));
         nuevaPublicacion.setCantidadReseñas(0);
         nuevaPublicacion.setTitulo(publicacionAlojamientoDTO.getTitulo());
@@ -68,9 +92,9 @@ public class PublicacionAlojamientoServicio {
         PublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoRepositorio.save(nuevaPublicacion);
 
         ResponsePublicacionAlojamiento response = converToDTO(createdPublicacionAlojamiento);
-
         return response;
     }
+
     public ResponsePublicacionAlojamiento getPublicacionId(Long publicacionId) {
         Optional<PublicacionAlojamiento> publicacionOpt = publicacionAlojamientoRepositorio.findById(publicacionId);
         if (publicacionOpt.isPresent()) {
@@ -124,6 +148,11 @@ public class PublicacionAlojamientoServicio {
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByH3IndexIn(indicesCercanos, pageable);
         return publicaciones.map(this::converToDTO);
     }*/
+    private Page<ResponsePublicacionAlojamiento> ObtenerTodos(Integer page, Integer size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findAll(pageable);
+        return publicaciones.map(this::converToDTO);
+    }
 
     private ResponsePublicacionAlojamiento converToDTO(PublicacionAlojamiento publicacionAlojamiento){
         ResponsePublicacionAlojamiento response = new ResponsePublicacionAlojamiento();

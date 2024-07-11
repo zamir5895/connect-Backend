@@ -49,14 +49,13 @@ public class AlojamientoServicio {
     @Transactional
     public ResponseAlojamientoDTO guardarAlojamiento(AlojamientoRequest alojamiento) throws AlojamientoNotFound, AccessDeniedException {
         Alojamiento alojamientoAux = new Alojamiento();
-        if(alojamiento.getId()==null || alojamiento.getDescripcion()==null ||
+        if(alojamiento.getDescripcion()==null ||
         alojamiento.getLongitude()==null || alojamiento.getLatitude()==null  ){
             throw new IllegalArgumentException("Los argumentos no deben ser nulos");
         }
         User currentPropietario = userRepository.findById(alojamiento.getPropietarioId()).
                 orElseThrow(()-> new RuntimeException("Propietario no encontrado"));
         authorizationUtils.verifyUserAuthorization(currentPropietario.getEmail(), alojamiento.getPropietarioId());
-        alojamientoAux.setId(alojamiento.getId());
         alojamientoAux.setPropietario(currentPropietario);
         alojamientoAux.setFechaPublicacion(LocalDateTime.now(ZoneId.systemDefault()));
         alojamientoAux.setDescripcion(alojamiento.getDescripcion());

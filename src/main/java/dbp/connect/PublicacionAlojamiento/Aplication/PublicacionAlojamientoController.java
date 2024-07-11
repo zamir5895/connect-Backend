@@ -24,7 +24,7 @@ public class PublicacionAlojamientoController {
     private PublicacionAlojamientoServicio publicacionAlojamientoServicio;
     @PreAuthorize("hasRole('ROLE_HOST') ")
     @PostMapping()
-    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@Valid @RequestBody PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) {
+    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@ModelAttribute PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) {
         ResponsePublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoServicio.guardarPublicacionAlojamiento(publicacionAlojamientoDTO);
         return ResponseEntity.created(URI.create("/alojamiento/"+createdPublicacionAlojamiento.getId())).body(createdPublicacionAlojamiento);
     }

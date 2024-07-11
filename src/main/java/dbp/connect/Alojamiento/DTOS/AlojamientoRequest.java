@@ -17,9 +17,6 @@ import java.util.List;
 
 @Data
 public class AlojamientoRequest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
     @NotNull
     private Long propietarioId;
     private Double latitude;

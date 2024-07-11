@@ -28,7 +28,6 @@ public class ResponsePublicacionAlojamiento {
     @NotNull
     @Size(min = 1, max = 1000)
     private String Descripcion;
-    @Lob
     private List<ResponseMultimediaDTO> alojamientoMultimedia = new ArrayList<>();
     @NotNull
     private String autorFullName;
