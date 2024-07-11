@@ -46,5 +46,14 @@ public class AuthorizationUtils {
                 !Objects.equals(usuarioEmail.getRole().toString(), "HOST"))
             throw new AccessDeniedException("No estas autorizado");
     }
+    public void verifyUserAuthorizationTraveler(String userEmail, Long id) throws AccessDeniedException {
+        User usuarioEmail = usuarioRepository.findByEmail(userEmail).orElseThrow(
+                ()-> new EntityNotFoundException("Usuario no encontrado"));
+        User usuarioId = usuarioRepository.findById(id).orElseThrow(
+                ()-> new EntityNotFoundException("Usuario no encontrado"));
+        if (!Objects.equals(usuarioEmail.getEmail(), usuarioId.getEmail()) &&
+                !Objects.equals(usuarioEmail.getRole().toString(), "TRAVELER"))
+            throw new AccessDeniedException("No estas autorizado");
+    }
 
 }

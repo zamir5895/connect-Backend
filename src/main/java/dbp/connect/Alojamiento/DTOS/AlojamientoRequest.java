@@ -21,9 +21,8 @@ public class AlojamientoRequest {
     private Long propietarioId;
     private Double latitude;
     private Double longitude;
-    @NotNull
     private String ubicacion;
-    @NotNull
+
     @Size(min = 1, max = 255)
     private String descripcion;
     @NotNull

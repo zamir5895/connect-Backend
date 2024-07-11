@@ -15,9 +15,11 @@ import dbp.connect.PublicacionAlojamiento.Infrastructure.PublicacionAlojamientoR
 import dbp.connect.PublicacionInicioMultimedia.DTOS.MultimediaInicioDTO;
 import dbp.connect.PublicacionInicioMultimedia.Domain.PublicacionInicioMultimedia;
 import dbp.connect.Review.Domain.ReviewServicio;
+import dbp.connect.Security.Utils.AuthorizationUtils;
 import dbp.connect.User.Domain.User;
 import dbp.connect.User.Infrastructure.UserRepository;
 import jakarta.persistence.EntityExistsException;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -52,50 +55,47 @@ public class PublicacionAlojamientoServicio {
     private AlojamientoMultimediaServicio alojamientoMultimediaServicio;
     @Autowired
     private AlojamientoMultimediaRepositorio alojamientoMultimediaRepositorio;
+    @Autowired
+    private AuthorizationUtils authorizationUtils;
 
-
-
-
-    public ResponsePublicacionAlojamiento guardarPublicacionAlojamiento(PostPublicacionAlojamientoDTO publicacionAlojamientoDTO){
+    public ResponsePublicacionAlojamiento guardarPublicacionAlojamiento(PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) throws AccessDeniedException {
         Alojamiento alojamiento = new Alojamiento();
-        User currentPropietario = userRepository.findById(publicacionAlojamientoDTO.getAlojamiento().getPropietarioId()).
-                orElseThrow(()-> new RuntimeException("Propietario no encontrado"));
+        User currentPropietario = userRepository.findById(publicacionAlojamientoDTO.getAlojamiento().getPropietarioId())
+                .orElseThrow(() -> new RuntimeException("Propietario no encontrado"));
 
         alojamiento.setPropietario(currentPropietario);
         alojamiento.setFechaPublicacion(LocalDateTime.now(ZoneId.systemDefault()));
         alojamiento.setDescripcion(publicacionAlojamientoDTO.getAlojamiento().getDescripcion());
         alojamiento.setLongitude(publicacionAlojamientoDTO.getAlojamiento().getLongitude());
         alojamiento.setLatitude(publicacionAlojamientoDTO.getAlojamiento().getLatitude());
+        alojamiento.setUbicacion(publicacionAlojamientoDTO.getAlojamiento().getUbicacion());
         alojamiento.setEstado(Estado.DISPONIBLE);
         alojamiento.setPrecio(publicacionAlojamientoDTO.getAlojamiento().getPrecio());
+        alojamiento.setTipoMoneda(publicacionAlojamientoDTO.getAlojamiento().getTipoMoneda());
+
+        alojamientoRepositorio.save(alojamiento);
 
         for (MultipartFile archivo : publicacionAlojamientoDTO.getAlojamiento().getMultimedia()) {
             AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
             multimedia.setAlojamiento(alojamiento);
             alojamientoMultimediaRepositorio.save(multimedia);
             alojamiento.getAlojamientoMultimedia().add(multimedia);
-
         }
-        alojamientoRepositorio.save(alojamiento);
-
-
 
         PublicacionAlojamiento nuevaPublicacion = new PublicacionAlojamiento();
-
         nuevaPublicacion.setAlojamientoP(alojamiento);
-        nuevaPublicacion.setId(alojamiento.getId());
         nuevaPublicacion.setFecha(ZonedDateTime.now(ZoneId.systemDefault()));
         nuevaPublicacion.setCantidadReseñas(0);
         nuevaPublicacion.setTitulo(publicacionAlojamientoDTO.getTitulo());
         nuevaPublicacion.setPromedioRating(0.0);
-        publicacionAlojamientoRepositorio.save(nuevaPublicacion);
-        PublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoRepositorio.save(nuevaPublicacion);
 
+        PublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoRepositorio.save(nuevaPublicacion);
         ResponsePublicacionAlojamiento response = converToDTO(createdPublicacionAlojamiento);
+
         return response;
     }
 
-    public ResponsePublicacionAlojamiento getPublicacionId(Long publicacionId) {
+    public ResponsePublicacionAlojamiento getPublicacionId(Long publicacionId) throws AccessDeniedException {
         Optional<PublicacionAlojamiento> publicacionOpt = publicacionAlojamientoRepositorio.findById(publicacionId);
         if (publicacionOpt.isPresent()) {
             PublicacionAlojamiento publicacion = publicacionOpt.get();
@@ -130,11 +130,21 @@ public class PublicacionAlojamientoServicio {
             throw new PublicacionAlojamientoNotFoundException("Publicacion no existe");
         }
     }
+
+
     public List<ResponsePublicacionAlojamiento> obtenerPublicacionesPorRangoDeCalificacion(Integer minRating, Integer maxRating) {
         List<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByCalificacionBetween(minRating, maxRating);
-        return publicaciones.stream()
-                .map(this::converToDTO) // Assuming there's a method `convertToDTO`
+        List<ResponsePublicacionAlojamiento> collect = publicaciones.stream()
+                .map(publicacionAlojamiento -> {
+                    try {
+                        return converToDTO(publicacionAlojamiento);
+                    } catch (AccessDeniedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .collect(Collectors.toList());
+        List<ResponsePublicacionAlojamiento> collect1 = collect;
+        return collect1;
     }
 
     /*public Page<ResponsePublicacionAlojamiento> buscarPorUbicacion(double latitud, double longitud, double radio, int page, int sz) throws IOException {
@@ -148,13 +158,21 @@ public class PublicacionAlojamientoServicio {
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByH3IndexIn(indicesCercanos, pageable);
         return publicaciones.map(this::converToDTO);
     }*/
+
+
     private Page<ResponsePublicacionAlojamiento> ObtenerTodos(Integer page, Integer size){
         Pageable pageable = PageRequest.of(page, size);
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findAll(pageable);
-        return publicaciones.map(this::converToDTO);
+        return publicaciones.map(publicacionAlojamiento -> {
+            try {
+                return converToDTO(publicacionAlojamiento);
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private ResponsePublicacionAlojamiento converToDTO(PublicacionAlojamiento publicacionAlojamiento){
+    private ResponsePublicacionAlojamiento converToDTO(PublicacionAlojamiento publicacionAlojamiento) throws AccessDeniedException {
         ResponsePublicacionAlojamiento response = new ResponsePublicacionAlojamiento();
         response.setId(publicacionAlojamiento.getId());
         response.setTitulo(publicacionAlojamiento.getTitulo());
@@ -190,7 +208,7 @@ public class PublicacionAlojamientoServicio {
         return dto;
     }
 
-    public ResponsePublicacionAlojamiento getApartmentoPost(Long apartmentID) {
+    public ResponsePublicacionAlojamiento getApartmentoPost(Long apartmentID) throws AccessDeniedException {
         Optional<PublicacionAlojamiento> publicacionOpt = publicacionAlojamientoRepositorio.findByAlojamientoP_Id(apartmentID);
         if (publicacionOpt.isPresent()) {
             PublicacionAlojamiento publicacion = publicacionOpt.get();

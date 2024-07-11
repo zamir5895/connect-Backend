@@ -7,34 +7,40 @@ import dbp.connect.PublicacionAlojamiento.Domain.PublicacionAlojamientoServicio;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/publicacionAlojamiento")
 public class PublicacionAlojamientoController {
     @Autowired
     private PublicacionAlojamientoServicio publicacionAlojamientoServicio;
-    @PreAuthorize("hasRole('ROLE_HOST') ")
-    @PostMapping()
-    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@ModelAttribute PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@RequestBody @Validated PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) throws AccessDeniedException {
+        if (publicacionAlojamientoDTO.getAlojamiento() == null) {
+            throw new IllegalArgumentException("Alojamiento data is missing");
+        }
+
         ResponsePublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoServicio.guardarPublicacionAlojamiento(publicacionAlojamientoDTO);
+
         return ResponseEntity.created(URI.create("/alojamiento/"+createdPublicacionAlojamiento.getId())).body(createdPublicacionAlojamiento);
     }
     @GetMapping("/{publicacionId}")
-    public ResponseEntity<ResponsePublicacionAlojamiento> consultarPublicacionAlojamiento(@PathVariable Long publicacionId) {
+    public ResponseEntity<ResponsePublicacionAlojamiento> consultarPublicacionAlojamiento(@PathVariable Long publicacionId) throws AccessDeniedException {
         return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionId(publicacionId));
     }
 
     @GetMapping("/id/{apartmentID}")
-    public ResponseEntity<ResponsePublicacionAlojamiento> getApartmentoPost(@PathVariable Long apartmentID) {
+    public ResponseEntity<ResponsePublicacionAlojamiento> getApartmentoPost(@PathVariable Long apartmentID) throws AccessDeniedException {
         System.out.println(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
         return ResponseEntity.ok(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
     }

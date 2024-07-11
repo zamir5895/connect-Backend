@@ -17,9 +17,8 @@ public class PostPublicacionAlojamientoDTO {
     @NotEmpty(message = "Debe de tener un titulo")
     @Size(min=1, max = 200)
     private String titulo;
-    @NotNull
-    private Long autorId;
-    @NotNull
+
+
     private AlojamientoRequest alojamiento;
 
 }
