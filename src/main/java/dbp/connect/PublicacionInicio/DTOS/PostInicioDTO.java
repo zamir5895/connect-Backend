@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.List;
 public class PostInicioDTO {
     @Size(min=1, max=255)
     private String Cuerpo;
-    private List<MultipartFile> multimediaList;
+    private List<MultipartFile> multimediaList = new ArrayList<>();
     @NotNull
     private Long autorPId;
 }

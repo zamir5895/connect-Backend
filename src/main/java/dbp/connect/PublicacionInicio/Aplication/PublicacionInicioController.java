@@ -25,7 +25,7 @@ public class PublicacionInicioController {
     private PublicacionInicioServicio publicacionInicioServicio;
 
     @PostMapping()
-    public ResponseEntity<Void> crearPublicacionInicio(@Valid @RequestBody PostInicioDTO postInicioDTO) {
+    public ResponseEntity<Void> crearPublicacionInicio(@Valid @ModelAttribute PostInicioDTO postInicioDTO) {
         publicacionInicioServicio.createPostInicioDTO(postInicioDTO);
         return ResponseEntity.ok().build();
     }

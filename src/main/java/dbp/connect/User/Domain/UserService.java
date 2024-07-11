@@ -122,7 +122,7 @@ public class UserService {
     }
     public void UpdateUser(Long userId, UpdateUserNameAndProfileDTO update) throws Exception {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        if(update.getUserName() != null) user.setUsername(update.getUserName());
+        user.setUsername(update.getUserName());
         if(update.getProfilePicture() != null) {
             String objectKey = storageService.subiralS3File(update.getProfilePicture(),serializarId(userId));
             String fotoUrl = storageService.obtenerURL(objectKey);

@@ -66,6 +66,7 @@ public class PublicacionInicioServicio {
         publicacionInicioRepositorio.save(publicacionInicio);
         user.getPublicacionInicio().add(publicacionInicio);
         userRepository.save(user);
+        System.out.println("Publicacion creada");
     }
     public Page<PublicacionInicioResponseDTO> obtenerPublicacionesInicio(Integer page, Integer size){
         Pageable pageable = PageRequest.of(page, size);
