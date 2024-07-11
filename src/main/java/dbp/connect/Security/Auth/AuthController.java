@@ -21,7 +21,7 @@ public class AuthController {
         System.out.println("Login successful for user: ");
         return ResponseEntity.ok(authService.login(authLoginRequest));
     }
-
+//
     @PostMapping("/register")
     public ResponseEntity<AuthJwtResponse> register(@RequestBody AuthRegisterRequest authRegisterRequest) {
         try {
