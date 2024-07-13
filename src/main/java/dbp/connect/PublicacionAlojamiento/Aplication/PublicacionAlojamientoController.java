@@ -1,7 +1,9 @@
 package dbp.connect.PublicacionAlojamiento.Aplication;
 
 
+import dbp.connect.Alojamiento.DTOS.ResponseAlojamientoDTO;
 import dbp.connect.PublicacionAlojamiento.DTOS.PostPublicacionAlojamientoDTO;
+import dbp.connect.PublicacionAlojamiento.DTOS.ResponseFilterDTO;
 import dbp.connect.PublicacionAlojamiento.DTOS.ResponsePublicacionAlojamiento;
 import dbp.connect.PublicacionAlojamiento.Domain.PublicacionAlojamientoServicio;
 import jakarta.validation.Valid;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.print.Pageable;
 import java.io.IOException;
@@ -24,13 +27,15 @@ import java.util.List;
 public class PublicacionAlojamientoController {
     @Autowired
     private PublicacionAlojamientoServicio publicacionAlojamientoServicio;
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@RequestBody @Validated PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) throws AccessDeniedException {
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@RequestPart  PostPublicacionAlojamientoDTO publicacionAlojamientoDTO,
+                                                                                      @RequestPart(name = "multimedia", required = false) List<MultipartFile> multimedia
+    ) throws AccessDeniedException {
         if (publicacionAlojamientoDTO.getAlojamiento() == null) {
             throw new IllegalArgumentException("Alojamiento data is missing");
         }
 
-        ResponsePublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoServicio.guardarPublicacionAlojamiento(publicacionAlojamientoDTO);
+        ResponsePublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoServicio.guardarPublicacionAlojamiento(publicacionAlojamientoDTO, multimedia);
 
         return ResponseEntity.created(URI.create("/alojamiento/"+createdPublicacionAlojamiento.getPublicacionId())).body(createdPublicacionAlojamiento);
     }
@@ -88,7 +93,18 @@ public class PublicacionAlojamientoController {
         List<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorPalabrasClave(keyword);
         return ResponseEntity.ok(publicaciones);
     }
-
+    @GetMapping("/dashboard")
+    public ResponseEntity<Page<ResponseFilterDTO>> getAlojamientos(@RequestParam int page,
+                                                                   @RequestParam int size,
+                                                                   @RequestParam Double distancia,
+                                                                   @RequestParam Double maxPrecio,
+                                                                   @RequestParam Double minPrecio,
+                                                                   @RequestParam String tipoMoneda,
+                                                                   @RequestParam Double latitude,
+                                                                   @RequestParam Double longuitude) {
+        return ResponseEntity.ok(publicacionAlojamientoServicio.obtenerPorFiltrosPublicacionesAloj
+                (page,size,distancia,maxPrecio,minPrecio,tipoMoneda, latitude, longuitude));
+    }
     /*
     @GetMapping("/buscarPorUbicacion")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> buscarPorUbicacion(

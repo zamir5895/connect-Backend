@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Setter
 @Getter
@@ -33,5 +34,5 @@ public class Review {
     @Column(name="comentario")
     private String comentario;
     @Column(name="fecha")
-    private LocalDateTime fecha;
+    private ZonedDateTime fecha;
 }

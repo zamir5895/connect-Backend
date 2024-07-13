@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Data
 public class ResponseReviewDTO {
+    private Long reviewId;
     @NotNull
     private String autorFullname;
     @NotEmpty

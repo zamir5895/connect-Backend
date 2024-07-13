@@ -1,7 +1,9 @@
 package dbp.connect.PublicacionAlojamiento.Domain;
 
 import com.uber.h3core.H3Core;
+import dbp.connect.Alojamiento.DTOS.ResponseAlojamientoDTO;
 import dbp.connect.Alojamiento.Domain.Alojamiento;
+import dbp.connect.Alojamiento.Domain.AlojamientoServicio;
 import dbp.connect.Alojamiento.Domain.Estado;
 import dbp.connect.Alojamiento.Infrastructure.AlojamientoRepositorio;
 import dbp.connect.AlojamientoMultimedia.DTOS.ResponseMultimediaDTO;
@@ -9,11 +11,14 @@ import dbp.connect.AlojamientoMultimedia.Domain.AlojamientoMultimedia;
 import dbp.connect.AlojamientoMultimedia.Domain.AlojamientoMultimediaServicio;
 import dbp.connect.AlojamientoMultimedia.Infrastructure.AlojamientoMultimediaRepositorio;
 import dbp.connect.PublicacionAlojamiento.DTOS.PostPublicacionAlojamientoDTO;
+import dbp.connect.PublicacionAlojamiento.DTOS.ResponseFilterDTO;
 import dbp.connect.PublicacionAlojamiento.DTOS.ResponsePublicacionAlojamiento;
 import dbp.connect.PublicacionAlojamiento.Exceptions.PublicacionAlojamientoNotFoundException;
 import dbp.connect.PublicacionAlojamiento.Infrastructure.PublicacionAlojamientoRespositorio;
 import dbp.connect.PublicacionInicioMultimedia.DTOS.MultimediaInicioDTO;
 import dbp.connect.PublicacionInicioMultimedia.Domain.PublicacionInicioMultimedia;
+import dbp.connect.Review.DTOS.ResponseReviewDTO;
+import dbp.connect.Review.Domain.Review;
 import dbp.connect.Review.Domain.ReviewServicio;
 import dbp.connect.Security.Utils.AuthorizationUtils;
 import dbp.connect.User.Domain.User;
@@ -22,6 +27,7 @@ import jakarta.persistence.EntityExistsException;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,8 +64,10 @@ public class PublicacionAlojamientoServicio {
     private AlojamientoMultimediaRepositorio alojamientoMultimediaRepositorio;
     @Autowired
     private AuthorizationUtils authorizationUtils;
+    @Autowired
+    private AlojamientoServicio alojamientoServicio;
 
-    public ResponsePublicacionAlojamiento guardarPublicacionAlojamiento(PostPublicacionAlojamientoDTO publicacionAlojamientoDTO) throws AccessDeniedException {
+    public ResponsePublicacionAlojamiento guardarPublicacionAlojamiento(PostPublicacionAlojamientoDTO publicacionAlojamientoDTO, List<MultipartFile> multi) throws AccessDeniedException {
         Alojamiento alojamiento = new Alojamiento();
         User currentPropietario = userRepository.findById(publicacionAlojamientoDTO.getAlojamiento().getPropietarioId())
                 .orElseThrow(() -> new RuntimeException("Propietario no encontrado"));
@@ -76,7 +84,7 @@ public class PublicacionAlojamientoServicio {
 
         alojamientoRepositorio.save(alojamiento);
 
-        for (MultipartFile archivo : publicacionAlojamientoDTO.getAlojamiento().getMultimedia()) {
+        for (MultipartFile archivo : multi) {
             AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
             multimedia.setAlojamiento(alojamiento);
             alojamientoMultimediaRepositorio.save(multimedia);
@@ -205,6 +213,46 @@ public class PublicacionAlojamientoServicio {
                 })
                 .collect(Collectors.toList());
         return collect;
+    }
+    public Page<ResponseFilterDTO> obtenerPorFiltrosPublicacionesAloj(int page, int size, Double distancia,
+                                                                      Double maxPrecio, Double minPrecio,
+                                                                      String tipoMoneda, Double latitude,
+                                                                      Double longuitude) {
+        Page<ResponseAlojamientoDTO> response = alojamientoServicio.obtenerAlojamientosDashboard(page, size,
+                distancia, maxPrecio, minPrecio, tipoMoneda, latitude, longuitude);
+        List<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findAll();
+
+        List<ResponseFilterDTO> responseFilterDTOs = publicaciones.stream()
+                .flatMap(p -> response.getContent().stream()
+                        .filter(r -> p.getAlojamientoP().getId().equals(r.getId()))
+                        .map(r -> {
+                            ResponseFilterDTO dto = new ResponseFilterDTO();
+                            dto.setPublicacionId(p.getId());
+                            dto.setTitulo(p.getTitulo());
+                            dto.setPromedioRating(p.getPromedioRating());
+                            dto.setCantidadReviews(p.getCantidadReseñas());
+                            dto.setReviews(p.getReviews().stream()
+                                    .map(this::convertToDTO)
+                                    .collect(Collectors.toList()));
+                            dto.setFullName(p.getFullName());
+                            dto.setAlojamiento(r);
+                            return dto;
+                        }))
+                .collect(Collectors.toList());
+
+        // Crear una página con los resultados
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(responseFilterDTOs, pageable, response.getTotalElements());
+    }
+
+    private ResponseReviewDTO converReview(Review review) {
+        // Implementar la conversión de Review a ResponseReviewDTO
+        ResponseReviewDTO dto = new ResponseReviewDTO();
+        dto.setReviewId(review.getId());
+        dto.setContenido(review.getComentario());
+        dto.setCalificacion(review.getCalificacion());
+        dto.setDateTime(review.getFecha());
+        return dto;
     }
 
     private ResponsePublicacionAlojamiento converToDTO(PublicacionAlojamiento publicacionAlojamiento) throws AccessDeniedException {

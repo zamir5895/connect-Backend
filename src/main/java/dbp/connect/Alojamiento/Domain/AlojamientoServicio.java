@@ -47,7 +47,7 @@ public class AlojamientoServicio {
     private AuthorizationUtils authorizationUtils;
 
     @Transactional
-    public ResponseAlojamientoDTO guardarAlojamiento(AlojamientoRequest alojamiento) throws AlojamientoNotFound, AccessDeniedException {
+    public ResponseAlojamientoDTO guardarAlojamiento(AlojamientoRequest alojamiento,List<MultipartFile> multimedia) throws AlojamientoNotFound, AccessDeniedException {
         Alojamiento alojamientoAux = new Alojamiento();
         if(alojamiento.getDescripcion()==null ||
         alojamiento.getLongitude()==null || alojamiento.getLatitude()==null  ){
@@ -63,15 +63,13 @@ public class AlojamientoServicio {
         alojamientoAux.setLatitude(alojamiento.getLatitude());
         alojamientoAux.setEstado(Estado.DISPONIBLE);
         alojamientoAux.setPrecio(alojamiento.getPrecio());
-
-        for (MultipartFile archivo : alojamiento.getMultimedia()) {
-            AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
-            multimedia.setAlojamiento(alojamientoAux);
-            alojamientoMultimediaRepositorio.save(multimedia);
-            alojamientoAux.getAlojamientoMultimedia().add(multimedia);
-
-        }
         alojamientoRepositorio.save(alojamientoAux);
+        for (MultipartFile archivo : multimedia) {
+            AlojamientoMultimedia multimed = alojamientoMultimediaServicio.guardarArchivo(archivo);
+            multimed.setAlojamiento(alojamientoAux);
+            alojamientoMultimediaRepositorio.save(multimed);
+            alojamientoAux.getAlojamientoMultimedia().add(multimed);
+        }
         ResponseAlojamientoDTO responseAlojamientoDTO = mapResponseAlojamientoDTO(alojamientoAux.getId());
         return responseAlojamientoDTO;
     }
@@ -151,7 +149,7 @@ public class AlojamientoServicio {
     }
 
     public ResponseAlojamientoDTO actualizarAlojamiento(Long alojamientoId,
-                                                        AlojamientoRequest alojamientoRequest) throws AlojamientoNotFound {
+                                                        AlojamientoRequest alojamientoRequest, List<MultipartFile> multi) throws AlojamientoNotFound {
         Optional<Alojamiento> alojamientoOptional = alojamientoRepositorio.findById(alojamientoId);
         if (alojamientoOptional.isPresent()) {
             Alojamiento alojamiento = alojamientoOptional.get();
@@ -161,11 +159,11 @@ public class AlojamientoServicio {
             alojamiento.setLatitude(alojamientoRequest.getLatitude());
             alojamiento.setLongitude(alojamientoRequest.getLongitude());
             alojamiento.setUbicacion(alojamientoRequest.getUbicacion());
-            if(!alojamientoRequest.getMultimedia().isEmpty()){
+            if(!multi.isEmpty()){
                 for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()){
                     alojamientoMultimediaRepositorio.delete(multimedia);
                 }
-                for (MultipartFile archivo : alojamientoRequest.getMultimedia()) {
+                for (MultipartFile archivo : multi) {
                     AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
                     multimedia.setAlojamiento(alojamiento);
                     alojamientoMultimediaRepositorio.save(multimedia);
@@ -268,13 +266,13 @@ public class AlojamientoServicio {
 
 
 
-        public Page<ResponseAlojamientoDTO> obtenerAlojamientosDashboard(int page, int size, Double distancia ,
-                                                                         Double maxPrecio, Double minPrec,
-                                                                         String tipoMoneda,
-                                                                         Double latitude, Double longuitude){
+    public Page<ResponseAlojamientoDTO> obtenerAlojamientosDashboard(int page, int size, Double distancia ,
+                                                                     Double maxPrecio, Double minPrec,
+                                                                     String tipoMoneda,
+                                                                     Double latitude, Double longuitude){
         Pageable pageable = PageRequest.of(page, size);
         Page<Alojamiento> alojamientos = alojamientoRepositorio.findAllByEstado(Estado.DISPONIBLE,pageable);
-        TipoMoneda realTipoMoneda = TipoMoneda.SOLES;
+        TipoMoneda realTipoMoneda;
         if (tipoMoneda == "SOLES"){
             realTipoMoneda = TipoMoneda.SOLES;
         }
@@ -325,6 +323,7 @@ public class AlojamientoServicio {
             multimedia.setUrlContenido(multimedia.getUrlContenido());
             multimediaDTOList.add(multimediaDTO);
         }
+
         responseAlojamientoDTO.setMultimedia(multimediaDTOList);
         return responseAlojamientoDTO;
     }
@@ -337,9 +336,8 @@ public class AlojamientoServicio {
                     a.getTipoMoneda().equals(filters.getTipoMoneda());
     }
 
-    private static final double R = 6371; // Earth radius in kilometers
+    private static final double R = 6371;
 
-    // Calculate distance using Haversine formula
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         double deltaLat = Math.toRadians(lat2 - lat1);
         double deltaLon = Math.toRadians(lon2 - lon1);
@@ -350,7 +348,7 @@ public class AlojamientoServicio {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return R * c; // Distance in kilometers
+        return R * c;
     }
 
 }

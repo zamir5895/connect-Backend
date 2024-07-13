@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class ReviewServicio {
         review.setAutorR(autorReview);
         review.setComentario(reviewRequest.getContent());
         review.setPublicacionAlojamiento(publicacion);
-        review.setFecha(LocalDateTime.now(ZoneId.systemDefault()));
+        review.setFecha(ZonedDateTime.now(ZoneId.systemDefault()));
         reviewRepository.save(review);
         publicacion.getReviews().add(review);
         publicacion.setCantidadReseñas(publicacion.getCantidadReseñas()+1);
@@ -202,6 +203,7 @@ public class ReviewServicio {
 
     private ResponseReviewDTO mapToResponseDTO(Review review) {
         ResponseReviewDTO dto = new ResponseReviewDTO();
+        dto.setReviewId(review.getId());
         dto.setAutorFullname(review.getAutorR().getUsername());
         dto.setContenido(review.getComentario());
         dto.setCalificacion(review.getCalificacion());
@@ -210,7 +212,7 @@ public class ReviewServicio {
         } else {
             dto.setAutorFotoUrl(null);
         }
-        dto.setDateTime(review.getFecha().atZone(ZoneId.systemDefault()));
+        dto.setDateTime(review.getFecha());
         return dto;
     }
 
