@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/alojamiento")
@@ -32,7 +33,10 @@ public class AlojamientoController {
 
     @PreAuthorize("hasRole('ROLE_HOST') ")
     @PostMapping()
-    public ResponseEntity<ResponseAlojamientoDTO> crearAlojamiento(@Valid @RequestBody AlojamientoRequest alojamientoRequest) throws AlojamientoNotFound, AccessDeniedException {
+    public ResponseEntity<ResponseAlojamientoDTO> crearAlojamiento(
+            @Valid @RequestBody AlojamientoRequest alojamientoRequest,
+            @RequestPart List<MultipartFile> multimedia)
+            throws AlojamientoNotFound, AccessDeniedException {
          ResponseAlojamientoDTO createdAlojamiento =alojamientoServicio.guardarAlojamiento(alojamientoRequest);
         return ResponseEntity.created(URI.create("/alojamiento/"+createdAlojamiento.getId())).body(createdAlojamiento);
     }

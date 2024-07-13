@@ -29,6 +29,5 @@ public class AlojamientoRequest {
     private double precio;
     @NotNull
     private TipoMoneda tipoMoneda;
-    private List<MultipartFile> multimedia = new ArrayList<>();
 
 }
