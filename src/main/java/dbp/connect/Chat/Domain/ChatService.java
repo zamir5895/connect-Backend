@@ -52,9 +52,7 @@ public class ChatService {
     public Chat createChat(Long reqUser,Long targUser ) throws UserException, NotFriendException {
         User user = userRepository.findById(reqUser).orElseThrow(() -> new UserException("Usuario no encontrado"));
         User targetUser = userRepository.findById(targUser).orElseThrow(()-> new EntityNotFoundException("Usuario no encontrado"));
-        if (!friendshipServicio.isFriend(reqUser, targUser)) {
-            throw new NotFriendException("Los usuarios no son amigos");
-        }
+
 
         Chat ischatExist = chatRepository.findSingleChatByUsersIds(user,targetUser);
         if(ischatExist != null){
@@ -81,13 +79,15 @@ public class ChatService {
     public Chat createChatGroup(Long userId, GroupChatRequestDTO dtoRequest) throws Exception {
         User user = userService.findUserById(userId);
         Chat group = new Chat();
-        group.setId(generateId());
         group.setCreatedBy(user);
         group.setChat_name(dtoRequest.getChatName());
-        String token = storageService.subiralS3File(dtoRequest.getCharImage(),serializarChatId(group.getId()));
-        String url = storageService.obtenerURL(token);
+        if(dtoRequest.getCharImage() != null){
+            String token = storageService.subiralS3File(dtoRequest.getCharImage(),serializarChatId(userId));
+            String url = storageService.obtenerURL(token);
+            group.setChat_image(url);
+        }
         group.setGroup(true);
-        group.setChat_image(url);
+
         group.getAdmins().add(user);
         for(Long userid: dtoRequest.getUsersId()){
             User userL = userService.findUserById(userid);

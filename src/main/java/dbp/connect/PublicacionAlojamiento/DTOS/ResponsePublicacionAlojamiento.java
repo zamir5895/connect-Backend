@@ -1,5 +1,6 @@
 package dbp.connect.PublicacionAlojamiento.DTOS;
 
+import dbp.connect.Alojamiento.Domain.Estado;
 import dbp.connect.AlojamientoMultimedia.DTOS.ResponseMultimediaDTO;
 import dbp.connect.AlojamientoMultimedia.Domain.AlojamientoMultimedia;
 import dbp.connect.Review.DTOS.ResponseReviewDTO;
@@ -21,7 +22,7 @@ import java.util.List;
 @Data
 public class ResponsePublicacionAlojamiento {
     @NotNull
-    private Long Id;
+    private Long publicacionId;
     @NotNull
     @Size(min = 1, max = 200)
     private String Titulo;
@@ -46,4 +47,8 @@ public class ResponsePublicacionAlojamiento {
     private List<ResponseReviewDTO> reviews = new ArrayList<>();
     private Double price;
     private TipoMoneda tipoMoneda;
+    private Long alojamientoId;
+    private Estado estado;
+    private Long propietarioId;
+
 }

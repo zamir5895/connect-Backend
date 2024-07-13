@@ -39,7 +39,7 @@ public class ChatController {
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
     @PostMapping("/group")
-    public ResponseEntity<Chat> createGroupChat(@RequestBody GroupChatRequestDTO groupChatRequestDTO,
+    public ResponseEntity<Chat> createGroupChat(@ModelAttribute GroupChatRequestDTO groupChatRequestDTO,
                                                 @RequestHeader ("Authorization") String token
     ) throws Exception {
         UserProfileDTO user = userService.finddUserProfile(token);

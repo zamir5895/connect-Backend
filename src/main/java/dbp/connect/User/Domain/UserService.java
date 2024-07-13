@@ -74,6 +74,7 @@ public class UserService {
         userProfileDTO.setTelefono(user.getTelefono());
         userProfileDTO.setGenero(user.getGenero());
         userProfileDTO.setDescripcion(user.getDescripcion());
+        userProfileDTO.setFechaCreacion(user.getCreatedAt());
         return userProfileDTO;
     }
 
@@ -118,6 +119,7 @@ public class UserService {
         userProfileDTO.setTelefono(user.getTelefono());
         userProfileDTO.setGenero(user.getGenero());
         userProfileDTO.setDescripcion(user.getDescripcion());
+        userProfileDTO.setFechaCreacion(user.getCreatedAt());
         return userProfileDTO;
     }
     public void UpdateUser(Long userId, UpdateUserNameAndProfileDTO update) throws Exception {
@@ -143,7 +145,7 @@ public class UserService {
             userSearchDTO.setId(user.getId());
             userSearchDTO.setUsername(user.getUsername());
             userSearchDTO.setFotoUrl(user.getFotoUrl());
-            userSearchDTO.setFullName(user.getPrimerNombre() + " " + user.getSegundoNombre()
+            userSearchDTO.setFullName(user.getPrimerNombre()
                     + " " + user.getPrimerApellido() + " " + user.getSegundoApellido());
             userSearchDTOList.add(userSearchDTO);
         }
@@ -157,6 +159,7 @@ public class UserService {
         informacionDelusuario.setUserName(user.getUsername());
         informacionDelusuario.setFotoPerfil(user.getFotoUrl());
         informacionDelusuario.setEmail(user.getEmail());
+        informacionDelusuario.setRol(user.getRole());
         return informacionDelusuario;
     }
 

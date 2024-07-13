@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +18,9 @@ import java.util.Set;
 public interface PublicacionAlojamientoRespositorio extends JpaRepository<PublicacionAlojamiento, Long> {
     @Query("SELECT p FROM PublicacionAlojamiento p WHERE p.promedioRating BETWEEN :minRating AND :maxRating")
     List<PublicacionAlojamiento> findByCalificacionBetween(@Param("minRating") Integer minRating, @Param("maxRating") Integer maxRating);
-    @Query(value = "SELECT * FROM publicacion_alojamiento WHERE alojamiento_p_id IN (SELECT id FROM alojamiento WHERE propietario_id = :propietarioId)",
-            countQuery = "SELECT count(*) FROM publicacion_alojamiento WHERE alojamiento_p_id IN (SELECT id FROM alojamiento WHERE propietario_id = :propietarioId)",
+
+    @Query(value = "SELECT * FROM publicacion_alojamiento WHERE alojamientop_id IN (SELECT id FROM alojamiento WHERE propietario_id = :propietarioId)",
+            countQuery = "SELECT count(*) FROM publicacion_alojamiento WHERE alojamientop_id IN (SELECT id FROM alojamiento WHERE propietario_id = :propietarioId)",
             nativeQuery = true)
     Page<PublicacionAlojamiento> findByAlojamientoP_Propietario_Id(@Param("propietarioId") Long propietarioId, Pageable pageable);
 
@@ -28,9 +30,10 @@ public interface PublicacionAlojamientoRespositorio extends JpaRepository<Public
             "LOWER(a.descripcion) LIKE LOWER(concat('%', :keyword, '%'))")
     List<PublicacionAlojamiento> findByPalabrasClave(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT * FROM publicacion_alojamiento WHERE fecha > :fecha - INTERVAL '2 weeks'",
+    @Query(value = "SELECT * FROM publicacion_alojamiento WHERE fecha > CAST(:fecha AS timestamp) - INTERVAL '2 weeks'",
             nativeQuery = true)
-    Page<PublicacionAlojamiento> findByFechaReciente(@Param("fecha") ZonedDateTime fecha, Pageable pageable);
+    Page<PublicacionAlojamiento> findByFechaReciente(@Param("fecha") Timestamp fecha, Pageable pageable);
+
 
 
     Optional<PublicacionAlojamiento> findByAlojamientoP_Id(Long id);

@@ -32,14 +32,14 @@ public class PublicacionAlojamientoController {
 
         ResponsePublicacionAlojamiento createdPublicacionAlojamiento = publicacionAlojamientoServicio.guardarPublicacionAlojamiento(publicacionAlojamientoDTO);
 
-        return ResponseEntity.created(URI.create("/alojamiento/"+createdPublicacionAlojamiento.getId())).body(createdPublicacionAlojamiento);
+        return ResponseEntity.created(URI.create("/alojamiento/"+createdPublicacionAlojamiento.getPublicacionId())).body(createdPublicacionAlojamiento);
     }
     @GetMapping("/{publicacionId}")
     public ResponseEntity<ResponsePublicacionAlojamiento> consultarPublicacionAlojamiento(@PathVariable Long publicacionId) throws AccessDeniedException {
         return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionId(publicacionId));
     }
 
-    @GetMapping("/id/{apartmentID}")
+    @GetMapping("/individual/{apartmentID}")
     public ResponseEntity<ResponsePublicacionAlojamiento> getApartmentoPost(@PathVariable Long apartmentID) throws AccessDeniedException {
         System.out.println(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
         return ResponseEntity.ok(publicacionAlojamientoServicio.getApartmentoPost(apartmentID));
@@ -48,32 +48,20 @@ public class PublicacionAlojamientoController {
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPublicacionesAlojamiento(@RequestParam int page, int size) {
         return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionesAlojamiento(page, size));
     }
-   /* @GetMapping("{userId}")
-    public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPorPublicacionParaUsuario(@PathVariable Long userId,
-                                                                                           @RequestParam int page, int size) {
 
-        return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionRecomendadas(userId,page,size));
-    }
-    @GetMapping("/{propietarioId}")
+    @GetMapping("/mispublicacion/{propietarioId}")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPorPublicacionParaPropietario(@PathVariable Long propietarioId,
                                                                                            @RequestParam int page, int size) {
 
-        return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionRecomendadas(userId,page,size));
-        }
-     @GetMapping("/ubicacion/{propietarioId}")
-    public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPorPublicacionParaPropietario(@PathVariable Long propietarioId, @RequestParam double latitude, @RequestParam Double longitud,
-                                                                                           @RequestParam int page, int size) {
+        return ResponseEntity.ok(publicacionAlojamientoServicio.getMisPublicaciones(propietarioId,page,size));
+    }
 
-        return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionRecomendadas(userId,page,size));
-        }
-    */
-   @PreAuthorize("hasRole('ROLE_HOST') ")
-    @PatchMapping("/publicacionId")
+
+    @PatchMapping("/{publicacionId}")
     public ResponseEntity<Void> actualizarTItulo(@PathVariable Long publicacionId, @RequestBody  String titulo){
         publicacionAlojamientoServicio.actualizarTituloAlojamiento(publicacionId, titulo);
         return ResponseEntity.ok().build();
     }
-    @PreAuthorize("hasRole('ROLE_HOST') ")
     @DeleteMapping("/{publicacionId}")
     public ResponseEntity<Void> eliminarPublicacionAlojamiento(@PathVariable Long publicacionId) {
         publicacionAlojamientoServicio.eliminarPublicacion(publicacionId);
@@ -83,7 +71,25 @@ public class PublicacionAlojamientoController {
     public ResponseEntity<List<ResponsePublicacionAlojamiento>> obtenerPublicacionesPorRangoDeCalificacion(@RequestParam Integer minRating, @RequestParam Integer maxRating) {
         List<ResponsePublicacionAlojamiento> publicacionDTOs = publicacionAlojamientoServicio.obtenerPublicacionesPorRangoDeCalificacion(minRating, maxRating);
         return ResponseEntity.ok(publicacionDTOs);
-    }/*
+    }
+        @GetMapping("/recientes")
+    public ResponseEntity<Page<ResponsePublicacionAlojamiento>> getPublicacionesRecientes(@RequestParam int page, @RequestParam int size) {
+        Page<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.getPublicacionesRecientes(page, size);
+        return ResponseEntity.ok(publicaciones);
+    }
+
+    @PatchMapping("/{publicacionId}/actualizar")
+    public ResponseEntity<Void> actualizarDescripcion(@PathVariable Long publicacionId, @RequestBody String descripcion) {
+        publicacionAlojamientoServicio.actualizarDescripcion(publicacionId, descripcion);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ResponsePublicacionAlojamiento>> buscarPorPalabrasClave(@RequestParam String keyword) {
+        List<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorPalabrasClave(keyword);
+        return ResponseEntity.ok(publicaciones);
+    }
+
+    /*
     @GetMapping("/buscarPorUbicacion")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> buscarPorUbicacion(
             @RequestParam double latitud,
@@ -94,25 +100,5 @@ public class PublicacionAlojamientoController {
         Page<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorUbicacion(latitud, longitud, radio, page, size);
         return ResponseEntity.ok(publicaciones);
     }
-    /*
-    @PreAuthorize("hasRole('ROLE_HOST')")
-    @PatchMapping("/{publicacionId}/actualizar")
-    public ResponseEntity<Void> actualizarPublicacion(@PathVariable Long publicacionId, @RequestBody ActualizarPublicacionDTO actualizarPublicacionDTO) {
-        publicacionAlojamientoServicio.actualizarPublicacion(publicacionId, actualizarPublicacionDTO);
-        return ResponseEntity.ok().build();
-    }
-
-
-
-    @GetMapping("/recientes")
-    public ResponseEntity<List<ResponsePublicacionAlojamiento>> listarRecientes() {
-        List<ResponsePublicacionAlojamiento> publicacionesRecientes = publicacionAlojamientoServicio.listarRecientes();
-        return ResponseEntity.ok(publicacionesRecientes);
-    }
-
-    @GetMapping("/buscarPorPalabrasClave")
-    public ResponseEntity<List<ResponsePublicacionAlojamiento>> buscarPorPalabrasClave(@RequestParam String palabrasClave) {
-        List<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorPalabrasClave(palabrasClave);
-        return ResponseEntity.ok(publicaciones);
-    }*/
+*/
 }

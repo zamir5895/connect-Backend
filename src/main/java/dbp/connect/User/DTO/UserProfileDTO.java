@@ -3,6 +3,7 @@ package dbp.connect.User.DTO;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @Data
 public class UserProfileDTO {
@@ -21,5 +22,6 @@ public class UserProfileDTO {
     private LocalDate fechaNacimiento;
     private String genero;
     private String pais;
+    private ZonedDateTime fechaCreacion;
 
 }

@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -64,12 +65,12 @@ public class PublicacionAlojamientoServicio {
                 .orElseThrow(() -> new RuntimeException("Propietario no encontrado"));
 
         alojamiento.setPropietario(currentPropietario);
+        alojamiento.setEstado(Estado.DISPONIBLE);
         alojamiento.setFechaPublicacion(LocalDateTime.now(ZoneId.systemDefault()));
         alojamiento.setDescripcion(publicacionAlojamientoDTO.getAlojamiento().getDescripcion());
         alojamiento.setLongitude(publicacionAlojamientoDTO.getAlojamiento().getLongitude());
         alojamiento.setLatitude(publicacionAlojamientoDTO.getAlojamiento().getLatitude());
         alojamiento.setUbicacion(publicacionAlojamientoDTO.getAlojamiento().getUbicacion());
-        alojamiento.setEstado(Estado.DISPONIBLE);
         alojamiento.setPrecio(publicacionAlojamientoDTO.getAlojamiento().getPrecio());
         alojamiento.setTipoMoneda(publicacionAlojamientoDTO.getAlojamiento().getTipoMoneda());
 
@@ -159,6 +160,18 @@ public class PublicacionAlojamientoServicio {
         return publicaciones.map(this::converToDTO);
     }*/
 
+    public Page<ResponsePublicacionAlojamiento> getMisPublicaciones(Long propietarioId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByAlojamientoP_Propietario_Id(propietarioId, pageable);
+        return publicaciones.map(publicacionAlojamiento -> {
+            try {
+                return converToDTO(publicacionAlojamiento);
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
 
     public Page<ResponsePublicacionAlojamiento> getPublicacionesAlojamiento(int page, int size){
         Pageable pageable = PageRequest.of(page, size);
@@ -171,21 +184,48 @@ public class PublicacionAlojamientoServicio {
             }
         });
     }
+    public void actualizarDescripcion(Long publicacionId, String descripcion){
+        Optional<PublicacionAlojamiento> p = publicacionAlojamientoRepositorio.findById(publicacionId);
+        if(p.isEmpty()) {
+            throw new PublicacionAlojamientoNotFoundException("Publicacion no existe");
+        }
+        PublicacionAlojamiento publicacion = p.get();
+        publicacion.getAlojamientoP().setDescripcion(descripcion);
+        publicacionAlojamientoRepositorio.save(publicacion);
+    }
+    public List <ResponsePublicacionAlojamiento> buscarPorPalabrasClave(String keyword){
+        List<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByPalabrasClave(keyword);
+        List<ResponsePublicacionAlojamiento> collect = publicaciones.stream()
+                .map(publicacionAlojamiento -> {
+                    try {
+                        return converToDTO(publicacionAlojamiento);
+                    } catch (AccessDeniedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return collect;
+    }
 
     private ResponsePublicacionAlojamiento converToDTO(PublicacionAlojamiento publicacionAlojamiento) throws AccessDeniedException {
         ResponsePublicacionAlojamiento response = new ResponsePublicacionAlojamiento();
-        response.setId(publicacionAlojamiento.getId());
+        response.setPublicacionId(publicacionAlojamiento.getId());
         response.setTitulo(publicacionAlojamiento.getTitulo());
         response.setDescripcion(publicacionAlojamiento.getAlojamientoP().getDescripcion());
         response.setLatitude(publicacionAlojamiento.getAlojamientoP().getLatitude());
         response.setLongitud(publicacionAlojamiento.getAlojamientoP().getLongitude());
         response.setCantidadReviews(publicacionAlojamiento.getCantidadReseñas());
         response.setPromedioRating(publicacionAlojamiento.getPromedioRating());
-        response.setAutorFullName(publicacionAlojamiento.getAlojamientoP().getPropietario().getUsername());
+        response.setAutorFullName(publicacionAlojamiento.getAlojamientoP().getPropietario().getPrimerNombre() + " " +
+                publicacionAlojamiento.getAlojamientoP().getPropietario().getPrimerApellido() + " " + publicacionAlojamiento.getAlojamientoP().getPropietario().getSegundoApellido());
         response.setFechaPublicacion(publicacionAlojamiento.getFecha());
         response.setPrice(publicacionAlojamiento.getAlojamientoP().getPrecio());
         response.setReviews(reviewServicio.obtenerReviewsRecientes(publicacionAlojamiento.getId()));
         response.setTipoMoneda(publicacionAlojamiento.getAlojamientoP().getTipoMoneda());
+        response.setAlojamientoId(publicacionAlojamiento.getAlojamientoP().getId());
+        response.setAlojamientoId(publicacionAlojamiento.getAlojamientoP().getId());
+        response.setEstado(publicacionAlojamiento.getAlojamientoP().getEstado());
+        response.setPropietarioId(publicacionAlojamiento.getAlojamientoP().getPropietario().getId());
         if (publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl() != null) {
             response.setAutorPhotoUrl(publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl());
         } else {
@@ -198,7 +238,21 @@ public class PublicacionAlojamientoServicio {
 
         return response;
     }
+    public Page<ResponsePublicacionAlojamiento> getPublicacionesRecientes(int page, int size ) {
+        Pageable pageable = PageRequest.of(page, size);
+        ZonedDateTime fechaActual = ZonedDateTime.now();
+        Timestamp timestamp = Timestamp.from(fechaActual.toInstant());
 
+        Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByFechaReciente(timestamp, pageable);
+        return publicaciones.map(publicacionAlojamiento -> {
+            try {
+                return converToDTO(publicacionAlojamiento);
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
 
     private ResponseMultimediaDTO converToDto(AlojamientoMultimedia multimedia){
         ResponseMultimediaDTO dto = new ResponseMultimediaDTO();
@@ -209,7 +263,7 @@ public class PublicacionAlojamientoServicio {
     }
 
     public ResponsePublicacionAlojamiento getApartmentoPost(Long apartmentID) throws AccessDeniedException {
-        Optional<PublicacionAlojamiento> publicacionOpt = publicacionAlojamientoRepositorio.findByAlojamientoP_Id(apartmentID);
+        Optional<PublicacionAlojamiento> publicacionOpt = publicacionAlojamientoRepositorio.findById(apartmentID);
         if (publicacionOpt.isPresent()) {
             PublicacionAlojamiento publicacion = publicacionOpt.get();
             return converToDTO(publicacion);

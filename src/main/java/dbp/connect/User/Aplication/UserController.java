@@ -26,6 +26,7 @@ import java.util.List;
 public class UserController {
     @Autowired
     private  UserService userService;
+
     @GetMapping("/perfilMasInformacion")
     public ResponseEntity<UserProfileDTO> getProfile(@RequestHeader("Authorization") String token) throws BadCredentialException, UserException {
         UserProfileDTO userProfileDTO = userService.finddUserProfile(token);
