@@ -63,6 +63,9 @@ public class AlojamientoServicio {
         alojamientoAux.setLatitude(alojamiento.getLatitude());
         alojamientoAux.setEstado(Estado.DISPONIBLE);
         alojamientoAux.setPrecio(alojamiento.getPrecio());
+        alojamientoAux.setCantidadBanios(alojamiento.getCantidadBanios());
+        alojamientoAux.setCantidadCamas(alojamiento.getCantidadCamas());
+        alojamientoAux.setCantidaHabitaciones(alojamiento.getCantidadHabitaciones());
         alojamientoRepositorio.save(alojamientoAux);
         for (MultipartFile archivo : multimedia) {
             AlojamientoMultimedia multimed = alojamientoMultimediaServicio.guardarArchivo(archivo);
@@ -252,13 +255,16 @@ public class AlojamientoServicio {
         responseAlojamientoDTO.setLatitude(alojamiento.getLatitude());
         responseAlojamientoDTO.setLongitude(alojamiento.getLongitude());
         responseAlojamientoDTO.setUbicacion(alojamiento.getUbicacion());
+
         List<ResponseMultimediaDTO> multimediaDTOList = new ArrayList<>();
-        for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()){
-            ResponseMultimediaDTO multimediaDTO = new ResponseMultimediaDTO();
-            multimediaDTO.setId(multimedia.getId());
-            multimediaDTO.setTipo(multimedia.getTipo());
-            multimedia.setUrlContenido(multimedia.getUrlContenido());
-            multimediaDTOList.add(multimediaDTO);
+        if(!alojamiento.getAlojamientoMultimedia().isEmpty()){
+            for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()){
+                ResponseMultimediaDTO multimediaDTO = new ResponseMultimediaDTO();
+                multimediaDTO.setId(multimedia.getId());
+                multimediaDTO.setTipo(multimedia.getTipo());
+                multimedia.setUrlContenido(multimedia.getUrlContenido());
+                multimediaDTOList.add(multimediaDTO);
+            }
         }
         responseAlojamientoDTO.setMultimedia(multimediaDTOList);
         return responseAlojamientoDTO;
@@ -315,14 +321,18 @@ public class AlojamientoServicio {
         responseAlojamientoDTO.setLatitude(alojamiento.getLatitude());
         responseAlojamientoDTO.setLongitude(alojamiento.getLongitude());
         responseAlojamientoDTO.setUbicacion(alojamiento.getUbicacion());
+        responseAlojamientoDTO.setCantidadBanios(alojamiento.getCantidadBanios());
+        responseAlojamientoDTO.setCantidadCamas(alojamiento.getCantidadCamas());
+        responseAlojamientoDTO.setCantidadHabitaciones(alojamiento.getCantidaHabitaciones());
         List<ResponseMultimediaDTO> multimediaDTOList = new ArrayList<>();
-        for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()){
-            ResponseMultimediaDTO multimediaDTO = new ResponseMultimediaDTO();
-            multimediaDTO.setId(multimedia.getId());
-            multimediaDTO.setTipo(multimedia.getTipo());
-            multimedia.setUrlContenido(multimedia.getUrlContenido());
-            multimediaDTOList.add(multimediaDTO);
-        }
+        if(!alojamiento.getAlojamientoMultimedia().isEmpty()){
+            for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()) {
+                ResponseMultimediaDTO multimediaDTO = new ResponseMultimediaDTO();
+                multimediaDTO.setId(multimedia.getId());
+                multimediaDTO.setTipo(multimedia.getTipo());
+                multimedia.setUrlContenido(multimedia.getUrlContenido());
+                multimediaDTOList.add(multimediaDTO);
+        }}
 
         responseAlojamientoDTO.setMultimedia(multimediaDTOList);
         return responseAlojamientoDTO;

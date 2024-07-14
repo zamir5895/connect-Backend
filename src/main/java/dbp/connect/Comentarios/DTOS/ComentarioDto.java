@@ -21,5 +21,4 @@ public class ComentarioDto {
     private String message;
     @NotNull
     private Long autorId;
-    private MultipartFile multimedia;
 }

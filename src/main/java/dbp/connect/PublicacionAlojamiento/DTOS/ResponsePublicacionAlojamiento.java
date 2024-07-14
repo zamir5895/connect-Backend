@@ -50,5 +50,7 @@ public class ResponsePublicacionAlojamiento {
     private Long alojamientoId;
     private Estado estado;
     private Long propietarioId;
-
+    private int cantidadHabitaciones;
+    private int cantidadCamas;
+    private int cantidadBanios;
 }

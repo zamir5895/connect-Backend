@@ -9,6 +9,4 @@ import java.util.List;
 public class GroupChatRequestDTO {
     private List<Long> usersId;
     private String chatName;
-    private MultipartFile charImage;
-
 }

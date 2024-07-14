@@ -76,13 +76,13 @@ public class ChatService {
 
         return chats;
     }
-    public Chat createChatGroup(Long userId, GroupChatRequestDTO dtoRequest) throws Exception {
+    public Chat createChatGroup(Long userId, GroupChatRequestDTO dtoRequest, MultipartFile imagen) throws Exception {
         User user = userService.findUserById(userId);
         Chat group = new Chat();
         group.setCreatedBy(user);
         group.setChat_name(dtoRequest.getChatName());
-        if(dtoRequest.getCharImage() != null){
-            String token = storageService.subiralS3File(dtoRequest.getCharImage(),serializarChatId(userId));
+        if(imagen != null){
+            String token = storageService.subiralS3File(imagen,serializarChatId(userId));
             String url = storageService.obtenerURL(token);
             group.setChat_image(url);
         }

@@ -1,9 +1,6 @@
 package dbp.connect.User.Aplication;
 
-import dbp.connect.User.DTO.UpdateUserNameAndProfileDTO;
-import dbp.connect.User.DTO.UserProfileDTO;
-import dbp.connect.User.DTO.UserSearchDTO;
-import dbp.connect.User.DTO.informacionDelusuario;
+import dbp.connect.User.DTO.*;
 import dbp.connect.User.Domain.User;
 import dbp.connect.User.Domain.UserService;
 import dbp.connect.User.Exceptions.BadCredentialException;
@@ -17,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -39,9 +37,12 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateProfile(@RequestHeader("Authorization") String token, @ModelAttribute UpdateUserNameAndProfileDTO update) throws Exception {
+    public ResponseEntity<Void> updateProfile(@RequestHeader("Authorization") String token,
+                                              @RequestPart("Data") UpdateUserNameAndProfileDTO update,
+                                              @RequestPart("file")MultipartFile foto
+                                              ) throws Exception {
         UserProfileDTO userProfDTO = userService.finddUserProfile(token);
-        userService.UpdateUser(userProfDTO.getId(), update);
+        userService.UpdateUser(userProfDTO.getId(), update,foto);
         return ResponseEntity.accepted().build();
     }
     @GetMapping("/perfil")
@@ -63,13 +64,20 @@ public ResponseEntity<Void> changePassword(@RequestHeader("Authorization") Strin
         UserProfileDTO userProfileDTO = userService.findUserProfileById(userId);
         return new ResponseEntity<>(userProfileDTO, HttpStatus.OK);
     }
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteUser(@RequestHeader("Authorization") String token) throws Exception {
+        userService.deleteUser(token);
+        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping("/profile/informacionPersonal")
+    public ResponseEntity<Void> updatePersonalInformation(@RequestHeader("Authorization") String token,
+                                                          @RequestBody UpdateUserDTO update) throws Exception {
+        userService.updateInformacionPersonal(token, update);
+        return ResponseEntity.accepted().build();
+    }
 /*
 //Eliminar Usuario
-@DeleteMapping("/delete")
-public ResponseEntity<Void> deleteUser(@RequestHeader("Authorization") String token) throws Exception {
-    userService.deleteUser(token);
-    return ResponseEntity.noContent().build();
-}
+
 @PostMapping("/actualizarEstado/{userId}")
 public ResponseEntity<Void> actualizarEstado(@PathVariable Long userId, @RequestBody String estado) {
     userService.actualizarEstado(userId, estado);

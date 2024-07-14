@@ -81,7 +81,9 @@ public class PublicacionAlojamientoServicio {
         alojamiento.setUbicacion(publicacionAlojamientoDTO.getAlojamiento().getUbicacion());
         alojamiento.setPrecio(publicacionAlojamientoDTO.getAlojamiento().getPrecio());
         alojamiento.setTipoMoneda(publicacionAlojamientoDTO.getAlojamiento().getTipoMoneda());
-
+        alojamiento.setCantidadBanios(publicacionAlojamientoDTO.getAlojamiento().getCantidadBanios());
+        alojamiento.setCantidaHabitaciones(publicacionAlojamientoDTO.getAlojamiento().getCantidadHabitaciones());
+        alojamiento.setCantidadCamas(publicacionAlojamientoDTO.getAlojamiento().getCantidadCamas());
         alojamientoRepositorio.save(alojamiento);
 
         for (MultipartFile archivo : multi) {
@@ -232,26 +234,29 @@ public class PublicacionAlojamientoServicio {
                             dto.setPromedioRating(p.getPromedioRating());
                             dto.setCantidadReviews(p.getCantidadReseñas());
                             dto.setReviews(p.getReviews().stream()
-                                    .map(this::convertToDTO)
+                                    .map(this::converReview)
                                     .collect(Collectors.toList()));
-                            dto.setFullName(p.getFullName());
+                            dto.setFullName(p.getAlojamientoP().getPropietario().getPrimerNombre() + " "
+                                    + p.getAlojamientoP().getPropietario().getPrimerApellido() + " "
+                                    + p.getAlojamientoP().getPropietario().getSegundoApellido());
                             dto.setAlojamiento(r);
                             return dto;
                         }))
                 .collect(Collectors.toList());
 
-        // Crear una página con los resultados
         Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<>(responseFilterDTOs, pageable, response.getTotalElements());
     }
 
     private ResponseReviewDTO converReview(Review review) {
-        // Implementar la conversión de Review a ResponseReviewDTO
         ResponseReviewDTO dto = new ResponseReviewDTO();
         dto.setReviewId(review.getId());
         dto.setContenido(review.getComentario());
         dto.setCalificacion(review.getCalificacion());
         dto.setDateTime(review.getFecha());
+        dto.setAutorFotoUrl(review.getAutorR().getFotoUrl());
+        dto.setAutorFullname(review.getAutorR().getPrimerNombre() + " " + review.getAutorR().getPrimerApellido() + " " +
+                review.getAutorR().getSegundoApellido());
         return dto;
     }
 
@@ -274,6 +279,9 @@ public class PublicacionAlojamientoServicio {
         response.setAlojamientoId(publicacionAlojamiento.getAlojamientoP().getId());
         response.setEstado(publicacionAlojamiento.getAlojamientoP().getEstado());
         response.setPropietarioId(publicacionAlojamiento.getAlojamientoP().getPropietario().getId());
+        response.setCantidadCamas(publicacionAlojamiento.getAlojamientoP().getCantidadCamas());
+        response.setCantidadHabitaciones(publicacionAlojamiento.getAlojamientoP().getCantidaHabitaciones());
+        response.setCantidadBanios(publicacionAlojamiento.getAlojamientoP().getCantidadBanios());
         if (publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl() != null) {
             response.setAutorPhotoUrl(publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl());
         } else {

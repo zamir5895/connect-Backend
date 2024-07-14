@@ -47,14 +47,14 @@ public class PublicacionInicioServicio {
     @Autowired
     private AuthorizationUtils authorizationUtils;
 
-    public void createPostInicioDTO(PostInicioDTO postInicioDTO){
+    public void createPostInicioDTO(PostInicioDTO postInicioDTO, List<MultipartFile> files){
         User user = userRepository.findById(postInicioDTO.getAutorPId()).orElseThrow(()->new EntityNotFoundException("El usuario no existe"));
         PublicacionInicio publicacionInicio = new PublicacionInicio();
         publicacionInicio.setAutorP(user);
         publicacionInicio.setCantidadComentarios(0);
         publicacionInicio.setCantidadLikes(0);
-        if(!postInicioDTO.getMultimediaList().isEmpty()){
-            for(MultipartFile file : postInicioDTO.getMultimediaList()){
+        if(!files.isEmpty()){
+            for(MultipartFile file : files){
                 PublicacionInicioMultimedia multimediaInicio = publicacionInicioMultimediaServicio.guardarArchivo(file);
                 publicacionInicio.getPublicacionMultimedia().add(multimediaInicio);
                 multimediaInicio.setPublicacionInicio(publicacionInicio);

@@ -52,7 +52,7 @@ public class MensajeServicio {
     @Autowired
     private UserService userService;
 
-    public MensajeResponseDTO sendMessage(DTOMensajePost mensaje) {
+    public MensajeResponseDTO sendMessage(DTOMensajePost mensaje, List<MultipartFile> archivos) {
         User user = userRepository.findById(mensaje.getUserId()).orElseThrow(
                 () -> new UsernameNotFoundException("Usuario no encontrado"));
         Chat chat = chatRepository.findById(mensaje.getChatId()).orElseThrow(
@@ -65,11 +65,13 @@ public class MensajeServicio {
         newMessage.setStatus(StatusMensaje.ENVIADO);
         newMessage.setCuerpo(mensaje.getContenido());
         newMessage.setFecha_mensaje(ZonedDateTime.now(ZoneId.systemDefault()));
-        for (MultipartFile file : mensaje.getMultimedia()) {
-            MultimediaMensaje multimedia = multimediaMensajeIndividualServicio.saveMultimedia(file);
-            multimedia.setMensaje(newMessage);
-            multimediaMensajeRepositorio.save(multimedia);
-            newMessage.getMultimediaMensaje().add(multimedia);
+        if(!archivos.isEmpty()) {
+            for (MultipartFile file : archivos) {
+                MultimediaMensaje multimedia = multimediaMensajeIndividualServicio.saveMultimedia(file);
+                multimedia.setMensaje(newMessage);
+                multimediaMensajeRepositorio.save(multimedia);
+                newMessage.getMultimediaMensaje().add(multimedia);
+            }
         }
         mensajeRepository.save(newMessage);
         return toDTOResponse(newMessage);

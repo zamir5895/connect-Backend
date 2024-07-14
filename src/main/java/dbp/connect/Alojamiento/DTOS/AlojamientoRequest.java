@@ -29,5 +29,8 @@ public class AlojamientoRequest {
     private double precio;
     @NotNull
     private TipoMoneda tipoMoneda;
+    private int cantidadHabitaciones;
+    private int cantidadCamas;
+    private int cantidadBanios;
 
 }

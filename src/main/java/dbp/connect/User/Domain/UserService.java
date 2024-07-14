@@ -16,10 +16,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.management.Query;
 import javax.swing.text.html.Option;
 import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -122,11 +124,11 @@ public class UserService {
         userProfileDTO.setFechaCreacion(user.getCreatedAt());
         return userProfileDTO;
     }
-    public void UpdateUser(Long userId, UpdateUserNameAndProfileDTO update) throws Exception {
+    public void UpdateUser(Long userId, UpdateUserNameAndProfileDTO update, MultipartFile foto) throws Exception {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setUsername(update.getUserName());
-        if(update.getProfilePicture() != null) {
-            String objectKey = storageService.subiralS3File(update.getProfilePicture(),serializarId(userId));
+        if(foto != null) {
+            String objectKey = storageService.subiralS3File(foto,serializarId(userId));
             String fotoUrl = storageService.obtenerURL(objectKey);
             user.setFotoUrl(fotoUrl);
         }
@@ -161,6 +163,21 @@ public class UserService {
         informacionDelusuario.setEmail(user.getEmail());
         informacionDelusuario.setRol(user.getRole());
         return informacionDelusuario;
+    }
+    public void deleteUser(String jwt) throws Exception {
+        String email = authorizationUtils.authenticateUser();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        userRepository.delete(user);
+    }
+    public void updateInformacionPersonal(String jwt, UpdateUserDTO update) throws Exception {
+        String email = authorizationUtils.authenticateUser();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        user.setPrimerNombre(update.getPrimerNombre());
+        user.setSegundoNombre(update.getSegundoNombre());
+        user.setPrimerApellido(update.getPrimerApellido());
+        user.setSegundoApellido(update.getSegundoApellido());
+
+        userRepository.save(user);
     }
 
     private String serializarId(Long imagenId){

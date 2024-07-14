@@ -25,8 +25,10 @@ public class PublicacionInicioController {
     private PublicacionInicioServicio publicacionInicioServicio;
 
     @PostMapping()
-    public ResponseEntity<Void> crearPublicacionInicio(@Valid @ModelAttribute PostInicioDTO postInicioDTO) {
-        publicacionInicioServicio.createPostInicioDTO(postInicioDTO);
+    public ResponseEntity<Void> crearPublicacionInicio(@Valid @RequestPart("data") PostInicioDTO postInicioDTO,
+                                                        @RequestPart(value = "files", required = false) List<MultipartFile> multimedia
+    ) {
+        publicacionInicioServicio.createPostInicioDTO(postInicioDTO, multimedia);
         return ResponseEntity.ok().build();
     }
 
@@ -54,10 +56,10 @@ public class PublicacionInicioController {
 
     return ResponseEntity.ok(publicacionInicioServicio.actualizarContenido(usuarioId, publicacionId, contenido));}
 
-    @PatchMapping("/{usuarioId}/{publicacionId}/multimedia")
+    @PatchMapping(value = "/{usuarioId}/{publicacionId}/multimedia", consumes = "multipart/form-data")
     public ResponseEntity<PublicacionInicioResponseDTO> cambiarMultimedia(@PathVariable Long usuarioId,
                                                                       @PathVariable Long publicacionId,
-                                                                      @RequestParam List<MultipartFile> multimedia){
+                                                                      @RequestPart("file") List<MultipartFile> multimedia){
     return ResponseEntity.ok(publicacionInicioServicio.actualizarMultimedia(usuarioId, publicacionId, multimedia));}
 
     @GetMapping("/buscar")

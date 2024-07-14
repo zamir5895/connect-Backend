@@ -9,5 +9,4 @@ public class UpdateUserDTO {
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
-    private MultipartFile profilePicture;
 }

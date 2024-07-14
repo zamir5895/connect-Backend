@@ -34,13 +34,15 @@ public class MensajeController {
     @Autowired
     private MultimediaMensajeServicio multimediaMensajeServicio;
 
-    @PostMapping("/create")
-    public ResponseEntity<MensajeResponseDTO> createMensaje(@RequestBody DTOMensajePost mensaje,
-                                                            @RequestHeader ("Authorization") String token)
+    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    public ResponseEntity<MensajeResponseDTO> createMensaje(@RequestHeader ("Authorization") String token,
+                                                            @RequestPart DTOMensajePost mensaje,
+                                                            @RequestPart(required = false) List<MultipartFile> archivos
+                                                            )
             throws URISyntaxException, BadCredentialException, UserException {
         UserProfileDTO profileDTO = userService.finddUserProfile(token);
         mensaje.setUserId(profileDTO.getId());
-        MensajeResponseDTO result = mensajeServicio.sendMessage(mensaje);
+        MensajeResponseDTO result = mensajeServicio.sendMessage(mensaje, archivos);
         return ResponseEntity.created(new URI("/api/mensajes/" + result.getId())).build();
     }
 
@@ -111,11 +113,11 @@ public class MensajeController {
         multimediaMensajeServicio.eliminarArchivo(chatId,mensajeId,multimediaId);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{chatId}/mensajes/{multimediaId}")
+    @PutMapping(value = "/{chatId}/mensajes/{multimediaId}", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateMultimedia(@PathVariable Long chatId,
                                                  @PathVariable Long mensajeId,
                                                  @PathVariable String multimediaId,
-                                                 @RequestParam MultipartFile archivo) throws Exception {
+                                                 @RequestPart MultipartFile archivo) throws Exception {
         multimediaMensajeServicio.modificarArchivo(chatId, mensajeId,multimediaId,archivo);
         return ResponseEntity.accepted().build();
     }

@@ -18,7 +18,6 @@ import java.util.List;
 public class PostInicioDTO {
     @Size(min=1, max=255)
     private String Cuerpo;
-    private List<MultipartFile> multimediaList = new ArrayList<>();
     @NotNull
     private Long autorPId;
 }

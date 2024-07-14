@@ -1,7 +1,9 @@
 package dbp.connect.User.DTO;
 
+import dbp.connect.User.Domain.Rol;
 import lombok.Data;
 
+import javax.management.relation.Role;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
@@ -22,6 +24,7 @@ public class UserProfileDTO {
     private LocalDate fechaNacimiento;
     private String genero;
     private String pais;
+    private Rol rol;
     private ZonedDateTime fechaCreacion;
 
 }

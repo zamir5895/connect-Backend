@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -46,7 +47,7 @@ public class ComentarioService {
     @Autowired
     private NotificacionesService notificacionesService;
 
-    public Comentario createNewComentario(Long publicacionID, ComentarioDto comentarioDTO) {
+    public Comentario createNewComentario(Long publicacionID, ComentarioDto comentarioDTO, MultipartFile file) {
         Optional<PublicacionInicio> publicacionInicio = publicacionInicioRepositorio.
                 findById(publicacionID);
         if (publicacionInicio.isPresent()) {
@@ -58,8 +59,8 @@ public class ComentarioService {
                     .orElseThrow(() -> new BadCredentialsException("Usuario no encontrado con id: " + comentarioDTO.getAutorId()));
             comentario.setAutorComentario(autor);
             comentario.setPublicacion(publicacion);
-            if (comentarioDTO.getMultimedia() != null && !comentarioDTO.getMultimedia().isEmpty()) {
-                ComentarioMultimedia comentarioMultimedia = comentarioMultimediaServicio.guardarArchivo(comentarioDTO.getMultimedia());
+            if (file != null) {
+                ComentarioMultimedia comentarioMultimedia = comentarioMultimediaServicio.guardarArchivo(file);
                 comentario.setComentarioMultimedia(comentarioMultimedia);
                 comentarioMultimediaRepositorio.save(comentarioMultimedia);
             }
@@ -76,7 +77,7 @@ public class ComentarioService {
         }
     }
 
-    public Comentario createNewComentarioHijo(Long publicacionID, Long parentId, ComentarioDto comentarioDTO) {
+    public Comentario createNewComentarioHijo(Long publicacionID, Long parentId, ComentarioDto comentarioDTO, MultipartFile file) {
         Optional<PublicacionInicio> publicacionInicio = publicacionInicioRepositorio.findById(publicacionID);
         if (publicacionInicio.isPresent()) {
             PublicacionInicio publicacion = publicacionInicio.get();
@@ -94,8 +95,8 @@ public class ComentarioService {
                 comentario.setLikes(0);
                 comentario.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
 
-                if (comentarioDTO.getMultimedia() != null && !comentarioDTO.getMultimedia().isEmpty()) {
-                    ComentarioMultimedia comentarioMultimedia = comentarioMultimediaServicio.guardarArchivo(comentarioDTO.getMultimedia());
+                if ( file != null ) {
+                    ComentarioMultimedia comentarioMultimedia = comentarioMultimediaServicio.guardarArchivo(file);
                     comentario.setComentarioMultimedia(comentarioMultimedia);
                     comentarioMultimediaRepositorio.save(comentarioMultimedia);
                 }

@@ -37,6 +37,10 @@ public class Alojamiento {
     private Double precio;
     @Column(name="tipoMoneda")
     private TipoMoneda tipoMoneda;
+
+    private int cantidaHabitaciones;
+    private int cantidadCamas;
+    private int cantidadBanios;
     @OneToMany(mappedBy = "alojamiento", fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<AlojamientoMultimedia> alojamientoMultimedia = new ArrayList<>();
 

@@ -24,5 +24,8 @@ public class ResponseAlojamientoDTO {
     private TipoMoneda tipoMoneda;
     @NotNull
     private double precio;
+    private int cantidadHabitaciones;
+    private int cantidadCamas;
+    private int cantidadBanios;
     private List<ResponseMultimediaDTO> multimedia = new ArrayList<>();
 }

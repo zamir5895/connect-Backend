@@ -30,16 +30,21 @@ public class ComentarioController {
     @Autowired
     private ComentarioMultimediaServicio comentarioMultimediaServicio;
 
-    @PostMapping("/{publicacionId}")
-    public ResponseEntity<Comentario> agregarComentario(@PathVariable Long publicacionId,@Valid @RequestBody ComentarioDto comentarioDTO) {
-        Comentario comentario = comentarioService.createNewComentario(publicacionId,comentarioDTO);
+    @PostMapping(value = "/{publicacionId}", consumes = "multipart/form-data")
+    public ResponseEntity<Comentario> agregarComentario(@PathVariable Long publicacionId,
+                                                        @Valid @RequestPart ComentarioDto comentarioDTO,
+                                                        @RequestPart MultipartFile multimedia
+    ) {
+        Comentario comentario = comentarioService.createNewComentario(publicacionId,comentarioDTO, multimedia);
         return ResponseEntity.created(URI.create("/comentarios/" + comentario.getId())).build();
     }
-    @PostMapping("/{publicacionId}/commentario/{parentId}/respuestas")
+    @PostMapping(value = "/{publicacionId}/commentario/{parentId}/respuestas" , consumes = "multipart/form-data")
     public ResponseEntity<Page<Comentario>> agregarRespuesta(@PathVariable Long publicacionId,
                                                              @PathVariable Long parentId,
-                                                             @RequestBody ComentarioDto comentarioDTO) {
-        Comentario comentario = comentarioService.createNewComentarioHijo(publicacionId, parentId,comentarioDTO);
+                                                             @RequestPart("data") ComentarioDto comentarioDTO,
+                                                             @RequestPart(value = "file" ,required = false) MultipartFile multimedia
+    ) {
+        Comentario comentario = comentarioService.createNewComentarioHijo(publicacionId, parentId,comentarioDTO, multimedia);
         return ResponseEntity.created(URI.create(parentId+"/comentarios/" + comentario.getId())).build();
 
     }
@@ -122,8 +127,8 @@ public class ComentarioController {
     public ResponseEntity<ResponseComMultimediaDTO> obtenerMultimedia(@PathVariable Long comentarioId, @PathVariable String multimediaId) {
         return ResponseEntity.ok(comentarioMultimediaServicio.obtenerMultimedia(comentarioId,multimediaId));
     }
-    @PatchMapping("{comentarioId}/multimedia[MultimediaId]")
-    public ResponseEntity<Void> modificarArchivo(@PathVariable Long comentarioId,@PathVariable String multimediaId,@RequestBody MultipartFile multimediaDTO) throws Exception {
+    @PatchMapping(value = "{comentarioId}/multimedia[MultimediaId]", consumes = "multipart/form-data")
+    public ResponseEntity<Void> modificarArchivo(@PathVariable Long comentarioId,@PathVariable String multimediaId,@RequestPart MultipartFile multimediaDTO) throws Exception {
         comentarioMultimediaServicio.modificarArchivo(comentarioId,multimediaId,multimediaDTO);
         return ResponseEntity.ok().build();
     }   

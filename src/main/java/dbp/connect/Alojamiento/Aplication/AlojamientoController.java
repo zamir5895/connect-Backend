@@ -31,8 +31,7 @@ public class AlojamientoController {
     @Autowired
     private StringHttpMessageConverter stringHttpMessageConverter;
 
-    @PreAuthorize("hasRole('ROLE_HOST') ")
-    @PostMapping()
+    @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<ResponseAlojamientoDTO> crearAlojamiento(
             @Valid @RequestPart("data") AlojamientoRequest alojamientoRequest,
             @RequestPart("data") List<MultipartFile> multimedia)
@@ -66,7 +65,9 @@ public class AlojamientoController {
         return ResponseEntity.ok().build();
     }
     @PatchMapping("/imagen/{alojamientoId}/{imagenId}")
-    public ResponseEntity<Void> actualizarImagen(@PathVariable Long alojamientoId, @PathVariable String imagenId, @RequestPart("file") MultipartFile imagen) throws Exception {
+    public ResponseEntity<Void> actualizarImagen(@PathVariable Long alojamientoId, @PathVariable String imagenId,
+                                                 @RequestPart(value = "file", required = false) MultipartFile imagen)
+            throws Exception {
         alojamientoMultimediaServicio.modificarArchivo(alojamientoId, imagenId, imagen);
         return ResponseEntity.ok().build();
     }
@@ -98,10 +99,10 @@ public class AlojamientoController {
         alojamientoServicio.actualizarUbicacionAlojamiento(alojamientoId, ubicacionDTO);
         return ResponseEntity.ok().build();
     }
-    @PutMapping("/{alojamientoId}")
+    @PutMapping(value = "/{alojamientoId}", consumes = "multipart/form-data")
     public ResponseEntity<ResponseAlojamientoDTO> actualizarAlojamiento(@PathVariable Long alojamientoId,
                                                                         @Valid @RequestPart("data") AlojamientoRequest alojamientoRequest,
-                                                                        @RequestPart("file") List<MultipartFile> multimedia
+                                                                        @RequestPart(value = "file", required = false) List<MultipartFile> multimedia
     ) throws AlojamientoNotFound {
         alojamientoServicio.actualizarAlojamiento(alojamientoId, alojamientoRequest, multimedia);
         return ResponseEntity.ok().build();

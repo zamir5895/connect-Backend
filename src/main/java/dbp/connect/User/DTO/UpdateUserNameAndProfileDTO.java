@@ -10,7 +10,6 @@ import java.time.LocalDate;
 public class UpdateUserNameAndProfileDTO {
     @NotNull
     private String userName;
-    private MultipartFile profilePicture;
     private String descripcion;
     private LocalDate fechaNacimiento;
     private String  direccion;

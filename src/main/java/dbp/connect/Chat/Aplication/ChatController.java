@@ -38,12 +38,13 @@ public class ChatController {
         Chat chat = chatService.createChat(user.getId(), singleChatRequestDTO.getUserId());
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
-    @PostMapping("/group")
-    public ResponseEntity<Chat> createGroupChat(@ModelAttribute GroupChatRequestDTO groupChatRequestDTO,
-                                                @RequestHeader ("Authorization") String token
+    @PostMapping(value = "/group", consumes = "multipart/form-data")
+    public ResponseEntity<Chat> createGroupChat(@RequestHeader ("Authorization") String token,
+                                                @RequestPart("data") GroupChatRequestDTO groupChatRequestDTO,
+                                                @RequestPart(value = "file", required = false) MultipartFile image
     ) throws Exception {
         UserProfileDTO user = userService.finddUserProfile(token);
-        Chat chat = chatService.createChatGroup(user.getId(),groupChatRequestDTO);
+        Chat chat = chatService.createChatGroup(user.getId(),groupChatRequestDTO, image);
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
     @GetMapping("/{chatId}")
