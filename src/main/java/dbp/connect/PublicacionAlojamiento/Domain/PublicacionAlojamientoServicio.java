@@ -82,15 +82,17 @@ public class PublicacionAlojamientoServicio {
         alojamiento.setPrecio(publicacionAlojamientoDTO.getAlojamiento().getPrecio());
         alojamiento.setTipoMoneda(publicacionAlojamientoDTO.getAlojamiento().getTipoMoneda());
         alojamiento.setCantidadBanios(publicacionAlojamientoDTO.getAlojamiento().getCantidadBanios());
-        alojamiento.setCantidaHabitaciones(publicacionAlojamientoDTO.getAlojamiento().getCantidadHabitaciones());
+        alojamiento.setCantidadHabitaciones(publicacionAlojamientoDTO.getAlojamiento().getCantidadHabitaciones());
         alojamiento.setCantidadCamas(publicacionAlojamientoDTO.getAlojamiento().getCantidadCamas());
         alojamientoRepositorio.save(alojamiento);
 
-        for (MultipartFile archivo : multi) {
-            AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
-            multimedia.setAlojamiento(alojamiento);
-            alojamientoMultimediaRepositorio.save(multimedia);
-            alojamiento.getAlojamientoMultimedia().add(multimedia);
+        if( multi != null){
+            for (MultipartFile archivo : multi) {
+                AlojamientoMultimedia multimedia = alojamientoMultimediaServicio.guardarArchivo(archivo);
+                multimedia.setAlojamiento(alojamiento);
+                alojamientoMultimediaRepositorio.save(multimedia);
+                alojamiento.getAlojamientoMultimedia().add(multimedia);
+            }
         }
 
         PublicacionAlojamiento nuevaPublicacion = new PublicacionAlojamiento();
@@ -280,7 +282,7 @@ public class PublicacionAlojamientoServicio {
         response.setEstado(publicacionAlojamiento.getAlojamientoP().getEstado());
         response.setPropietarioId(publicacionAlojamiento.getAlojamientoP().getPropietario().getId());
         response.setCantidadCamas(publicacionAlojamiento.getAlojamientoP().getCantidadCamas());
-        response.setCantidadHabitaciones(publicacionAlojamiento.getAlojamientoP().getCantidaHabitaciones());
+        response.setCantidadHabitaciones(publicacionAlojamiento.getAlojamientoP().getCantidadHabitaciones());
         response.setCantidadBanios(publicacionAlojamiento.getAlojamientoP().getCantidadBanios());
         if (publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl() != null) {
             response.setAutorPhotoUrl(publicacionAlojamiento.getAlojamientoP().getPropietario().getFotoUrl());

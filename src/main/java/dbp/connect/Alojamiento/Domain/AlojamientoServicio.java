@@ -65,13 +65,15 @@ public class AlojamientoServicio {
         alojamientoAux.setPrecio(alojamiento.getPrecio());
         alojamientoAux.setCantidadBanios(alojamiento.getCantidadBanios());
         alojamientoAux.setCantidadCamas(alojamiento.getCantidadCamas());
-        alojamientoAux.setCantidaHabitaciones(alojamiento.getCantidadHabitaciones());
+        alojamientoAux.setCantidadHabitaciones(alojamiento.getCantidadHabitaciones());
         alojamientoRepositorio.save(alojamientoAux);
-        for (MultipartFile archivo : multimedia) {
-            AlojamientoMultimedia multimed = alojamientoMultimediaServicio.guardarArchivo(archivo);
-            multimed.setAlojamiento(alojamientoAux);
-            alojamientoMultimediaRepositorio.save(multimed);
-            alojamientoAux.getAlojamientoMultimedia().add(multimed);
+        if( !multimedia.isEmpty()){
+            for (MultipartFile archivo : multimedia) {
+                AlojamientoMultimedia multimed = alojamientoMultimediaServicio.guardarArchivo(archivo);
+                multimed.setAlojamiento(alojamientoAux);
+                alojamientoMultimediaRepositorio.save(multimed);
+                alojamientoAux.getAlojamientoMultimedia().add(multimed);
+            }
         }
         ResponseAlojamientoDTO responseAlojamientoDTO = mapResponseAlojamientoDTO(alojamientoAux.getId());
         return responseAlojamientoDTO;
@@ -323,7 +325,7 @@ public class AlojamientoServicio {
         responseAlojamientoDTO.setUbicacion(alojamiento.getUbicacion());
         responseAlojamientoDTO.setCantidadBanios(alojamiento.getCantidadBanios());
         responseAlojamientoDTO.setCantidadCamas(alojamiento.getCantidadCamas());
-        responseAlojamientoDTO.setCantidadHabitaciones(alojamiento.getCantidaHabitaciones());
+        responseAlojamientoDTO.setCantidadHabitaciones(alojamiento.getCantidadHabitaciones());
         List<ResponseMultimediaDTO> multimediaDTOList = new ArrayList<>();
         if(!alojamiento.getAlojamientoMultimedia().isEmpty()){
             for(AlojamientoMultimedia multimedia: alojamiento.getAlojamientoMultimedia()) {

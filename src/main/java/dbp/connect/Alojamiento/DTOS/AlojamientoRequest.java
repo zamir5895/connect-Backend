@@ -32,5 +32,4 @@ public class AlojamientoRequest {
     private int cantidadHabitaciones;
     private int cantidadCamas;
     private int cantidadBanios;
-
 }
