@@ -122,6 +122,7 @@ public class UserService {
         userProfileDTO.setGenero(user.getGenero());
         userProfileDTO.setDescripcion(user.getDescripcion());
         userProfileDTO.setFechaCreacion(user.getCreatedAt());
+        userProfileDTO.setRol(user.getRole());
         return userProfileDTO;
     }
     public void UpdateUser(Long userId, UpdateUserNameAndProfileDTO update, MultipartFile foto) throws Exception {
