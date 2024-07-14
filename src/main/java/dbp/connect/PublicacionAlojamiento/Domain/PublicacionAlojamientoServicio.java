@@ -26,10 +26,7 @@ import dbp.connect.User.Infrastructure.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -173,7 +170,7 @@ public class PublicacionAlojamientoServicio {
     }*/
 
     public Page<ResponsePublicacionAlojamiento> getMisPublicaciones(Long propietarioId, int page, int size){
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecha"));
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findByAlojamientoP_Propietario_Id(propietarioId, pageable);
         return publicaciones.map(publicacionAlojamiento -> {
             try {

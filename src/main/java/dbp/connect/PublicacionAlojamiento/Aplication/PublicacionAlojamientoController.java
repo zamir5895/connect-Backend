@@ -28,8 +28,7 @@ public class PublicacionAlojamientoController {
     @Autowired
     private PublicacionAlojamientoServicio publicacionAlojamientoServicio;
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@RequestPart  PostPublicacionAlojamientoDTO publicacionAlojamientoDTO,
-                                                                                      @RequestPart(name = "multimedia", required = false) List<MultipartFile> multimedia
+    public ResponseEntity<ResponsePublicacionAlojamiento> crearPublicacionAlojamiento(@RequestPart  PostPublicacionAlojamientoDTO publicacionAlojamientoDTO, @RequestPart(name = "multimedia", required = false) List<MultipartFile> multimedia
     ) throws AccessDeniedException {
         if (publicacionAlojamientoDTO.getAlojamiento() == null) {
             throw new IllegalArgumentException("Alojamiento data is missing");
@@ -54,7 +53,7 @@ public class PublicacionAlojamientoController {
         return ResponseEntity.ok(publicacionAlojamientoServicio.getPublicacionesAlojamiento(page, size));
     }
 
-    @GetMapping("/mispublicacion/{propietarioId}")
+    @GetMapping("/mispublicaciones/{propietarioId}")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> consultarPorPublicacionParaPropietario(@PathVariable Long propietarioId,
                                                                                            @RequestParam int page, int size) {
 
@@ -62,37 +61,33 @@ public class PublicacionAlojamientoController {
     }
 
 
-    @PatchMapping("/{publicacionId}")
-    public ResponseEntity<Void> actualizarTItulo(@PathVariable Long publicacionId, @RequestBody  String titulo){
-        publicacionAlojamientoServicio.actualizarTituloAlojamiento(publicacionId, titulo);
-        return ResponseEntity.ok().build();
-    }
     @DeleteMapping("/{publicacionId}")
     public ResponseEntity<Void> eliminarPublicacionAlojamiento(@PathVariable Long publicacionId) {
         publicacionAlojamientoServicio.eliminarPublicacion(publicacionId);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/publicaciones/rango-calificacion")
     public ResponseEntity<List<ResponsePublicacionAlojamiento>> obtenerPublicacionesPorRangoDeCalificacion(@RequestParam Integer minRating, @RequestParam Integer maxRating) {
         List<ResponsePublicacionAlojamiento> publicacionDTOs = publicacionAlojamientoServicio.obtenerPublicacionesPorRangoDeCalificacion(minRating, maxRating);
         return ResponseEntity.ok(publicacionDTOs);
     }
-        @GetMapping("/recientes")
+    @GetMapping("/recientes")
     public ResponseEntity<Page<ResponsePublicacionAlojamiento>> getPublicacionesRecientes(@RequestParam int page, @RequestParam int size) {
         Page<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.getPublicacionesRecientes(page, size);
         return ResponseEntity.ok(publicaciones);
     }
 
     @PatchMapping("/{publicacionId}/actualizar")
-    public ResponseEntity<Void> actualizarDescripcion(@PathVariable Long publicacionId, @RequestBody String descripcion) {
-        publicacionAlojamientoServicio.actualizarDescripcion(publicacionId, descripcion);
+    public ResponseEntity<Void> actualizarTitulo(@PathVariable Long publicacionId, @RequestBody String titulo) {
+        publicacionAlojamientoServicio.actualizarTituloAlojamiento(publicacionId, titulo);
         return ResponseEntity.ok().build();
     }
     @GetMapping("/buscar")
     public ResponseEntity<List<ResponsePublicacionAlojamiento>> buscarPorPalabrasClave(@RequestParam String keyword) {
         List<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorPalabrasClave(keyword);
         return ResponseEntity.ok(publicaciones);
-    }
+        }
     @GetMapping("/dashboard")
     public ResponseEntity<Page<ResponseFilterDTO>> getAlojamientos(@RequestParam int page,
                                                                    @RequestParam int size,

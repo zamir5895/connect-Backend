@@ -83,8 +83,8 @@ public class AlojamientoController {
         return ResponseEntity.ok().build();
     }
     @PatchMapping("/disponibilidad/{alojamientoId}")
-    public ResponseEntity<Void> actualizarEstado(@PathVariable Long alojamientoId) throws AlojamientoNotFound {
-        alojamientoServicio.actualizarEstadoAlojamiento(alojamientoId);
+    public ResponseEntity<Void> actualizarEstado(@PathVariable Long alojamientoId, @RequestBody String estado) throws AlojamientoNotFound {
+        alojamientoServicio.actualizarEstadoAlojamiento(alojamientoId, estado);
         return ResponseEntity.ok().build();
     }
     @PatchMapping("/alojamientos/descripcion/{alojamientoId}")

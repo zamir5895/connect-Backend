@@ -23,12 +23,13 @@ import java.util.List;
 public class ResponsePublicacionAlojamiento {
     @NotNull
     private Long publicacionId;
+
     @NotNull
     @Size(min = 1, max = 200)
-    private String Titulo;
+    private String titulo;
     @NotNull
     @Size(min = 1, max = 1000)
-    private String Descripcion;
+    private String descripcion;
     private List<ResponseMultimediaDTO> alojamientoMultimedia = new ArrayList<>();
     @NotNull
     private String autorFullName;

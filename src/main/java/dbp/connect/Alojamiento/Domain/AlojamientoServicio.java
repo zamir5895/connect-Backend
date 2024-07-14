@@ -108,16 +108,21 @@ public class AlojamientoServicio {
         }
     }
 
-    public void actualizarEstadoAlojamiento(Long alojamientoId) throws AlojamientoNotFound {
+    public void actualizarEstadoAlojamiento(Long alojamientoId, String estado) throws AlojamientoNotFound {
         Optional<Alojamiento> alojamientoOptional = alojamientoRepositorio.findById(alojamientoId);
         if (alojamientoOptional.isPresent()) {
             Alojamiento alojamiento = alojamientoOptional.get();
-            alojamiento.setEstado(Estado.NODISPONIBLE);
+            if(estado.toUpperCase().equals("DISPONIBLE")){
+                alojamiento.setEstado(Estado.DISPONIBLE);
+            }else{
+                alojamiento.setEstado(Estado.NODISPONIBLE);
+            }
             alojamientoRepositorio.save(alojamiento);
         } else {
             throw new AlojamientoNotFound("Alojamiento no encontrado con id: " + alojamientoId);
         }
     }
+
 
     public void actualizarDescripcionAlojamiento(Long alojamientoId, ContenidoDTO contenidoDTO) throws AlojamientoNotFound {
         Optional<Alojamiento> alojamientoOptional = alojamientoRepositorio.findById(alojamientoId);

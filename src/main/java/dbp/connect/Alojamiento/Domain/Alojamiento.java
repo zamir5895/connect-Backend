@@ -9,7 +9,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -21,33 +20,41 @@ public class Alojamiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JoinColumn(name ="estado")
+
+    @JoinColumn(name = "estado")
     private Estado estado;
-    @Column(name="latitude")
+
+    @Column(name = "latitude")
     private Double latitude;
-    @Column(name="longitud")
+
+    @Column(name = "longitud")
     private Double longitude;
-    @Column(name="ubicacion")
+
+    @Column(name = "ubicacion")
     private String ubicacion;
-    @Column(name ="fechaPublicacion")
+
+    @Column(name = "fechaPublicacion")
     private LocalDateTime fechaPublicacion;
-    @Column(name="descripcion")
+
+    @Column(name = "descripcion")
     private String descripcion;
-    @Column(name="precio")
+
+    @Column(name = "precio")
     private Double precio;
-    @Column(name="tipoMoneda")
+
+    @Column(name = "tipoMoneda")
     private TipoMoneda tipoMoneda;
 
     @Column(name = "cantidad_habitaciones")
-    private int cantidadHabitaciones;
+    private int cantidadHabitaciones = 0;
 
     @Column(name = "cantidad_camas")
-    private int cantidadCamas;
+    private int cantidadCamas = 0;
 
     @Column(name = "cantidad_banios")
-    private int cantidadBanios;
+    private int cantidadBanios = 0;
 
-    @OneToMany(mappedBy = "alojamiento", fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "alojamiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlojamientoMultimedia> alojamientoMultimedia = new ArrayList<>();
 
     @OneToOne(mappedBy = "alojamientoP")
