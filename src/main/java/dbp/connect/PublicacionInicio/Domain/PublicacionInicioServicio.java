@@ -53,7 +53,7 @@ public class PublicacionInicioServicio {
         publicacionInicio.setAutorP(user);
         publicacionInicio.setCantidadComentarios(0);
         publicacionInicio.setCantidadLikes(0);
-        if(!files.isEmpty()){
+        if( files!=null){
             for(MultipartFile file : files){
                 PublicacionInicioMultimedia multimediaInicio = publicacionInicioMultimediaServicio.guardarArchivo(file);
                 publicacionInicio.getPublicacionMultimedia().add(multimediaInicio);

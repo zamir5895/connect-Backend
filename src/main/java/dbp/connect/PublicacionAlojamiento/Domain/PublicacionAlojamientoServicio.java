@@ -183,7 +183,7 @@ public class PublicacionAlojamientoServicio {
 
 
     public Page<ResponsePublicacionAlojamiento> getPublicacionesAlojamiento(int page, int size){
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecha"));
         Page<PublicacionAlojamiento> publicaciones = publicacionAlojamientoRepositorio.findAll(pageable);
         return publicaciones.map(publicacionAlojamiento -> {
             try {
@@ -278,6 +278,7 @@ public class PublicacionAlojamientoServicio {
         response.setAlojamientoId(publicacionAlojamiento.getAlojamientoP().getId());
         response.setEstado(publicacionAlojamiento.getAlojamientoP().getEstado());
         response.setPropietarioId(publicacionAlojamiento.getAlojamientoP().getPropietario().getId());
+        response.setAutorNumber(publicacionAlojamiento.getAlojamientoP().getPropietario().getTelefono());
         response.setCantidadCamas(publicacionAlojamiento.getAlojamientoP().getCantidadCamas());
         response.setCantidadHabitaciones(publicacionAlojamiento.getAlojamientoP().getCantidadHabitaciones());
         response.setCantidadBanios(publicacionAlojamiento.getAlojamientoP().getCantidadBanios());

@@ -137,8 +137,6 @@ public class UserService {
         user.setDescripcion(update.getDescripcion());
         user.setFechaNacimiento(update.getFechaNacimiento());
         userRepository.save(user);
-
-
     }
     public List<UserSearchDTO> searchUser(String query) {
         List<User> users = userRepository.searchUser(query);
@@ -159,7 +157,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
         informacionDelusuario informacionDelusuario = new informacionDelusuario();
         informacionDelusuario.setId(user.getId());
-        informacionDelusuario.setUserName(user.getUsername());
+        informacionDelusuario.setUserName(user.getPrimerNombre() +" " + user.getPrimerApellido());
         informacionDelusuario.setFotoPerfil(user.getFotoUrl());
         informacionDelusuario.setEmail(user.getEmail());
         informacionDelusuario.setRol(user.getRole());

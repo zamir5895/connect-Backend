@@ -9,8 +9,7 @@ import org.hibernate.validator.constraints.Range;
 
 import java.time.ZonedDateTime;
 
-@Setter
-@Getter
+
 @Data
 public class ResponseReviewDTO {
     private Long reviewId;
@@ -22,7 +21,9 @@ public class ResponseReviewDTO {
     @NotNull
     private Integer calificacion;
     private String autorFotoUrl;
+    private Long publicacionId;
+    private Long autorId;
     @NotNull
-    private ZonedDateTime dateTime; //Suficientes atributos?
+    private ZonedDateTime dateTime;
 
 }

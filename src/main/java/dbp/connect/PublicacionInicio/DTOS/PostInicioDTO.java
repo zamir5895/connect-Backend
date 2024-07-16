@@ -12,8 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-@Getter
-@Setter
+
 @Data
 public class PostInicioDTO {
     @Size(min=1, max=255)

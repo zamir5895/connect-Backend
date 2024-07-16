@@ -87,7 +87,7 @@ public class PublicacionAlojamientoController {
     public ResponseEntity<List<ResponsePublicacionAlojamiento>> buscarPorPalabrasClave(@RequestParam String keyword) {
         List<ResponsePublicacionAlojamiento> publicaciones = publicacionAlojamientoServicio.buscarPorPalabrasClave(keyword);
         return ResponseEntity.ok(publicaciones);
-        }
+    }
     @GetMapping("/dashboard")
     public ResponseEntity<Page<ResponseFilterDTO>> getAlojamientos(@RequestParam int page,
                                                                    @RequestParam int size,

@@ -85,20 +85,32 @@ public class ReviewServicio {
 
     public Page<ResponseReviewDTO> obtenerReviewsPorPublicacionId(Long publicacionAId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecha"));
-        reviewRepository.findById(publicacionAId).orElseThrow(() -> new EntityNotFoundException("Review not found"));
         Page<Review> reviews = reviewRepository.findByPublicacionAlojamientoId(publicacionAId, pageable);
-        List<ResponseReviewDTO> reviewsContent = new ArrayList<>(reviews.map(this::mapToResponseDTO).getContent());
-
-        while (reviewsContent.size() < size) {
-            ResponseReviewDTO defaultReview = reviewsContent.get(reviewsContent.size() - 1);
-            reviewsContent.add(defaultReview);
-        }
+        List<ResponseReviewDTO> reviewsContent = new ArrayList<>(reviews.
+                map(this::mapToResponseDTO).getContent());
 
         return new PageImpl<>(reviewsContent, pageable, reviews.getTotalElements());
     }
+
+
     public void eliminarReseña(Long id){
+        Review review = reviewRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Review no encontrada"));
+        PublicacionAlojamiento publicacionAlojamiento = review.getPublicacionAlojamiento();
+        publicacionAlojamiento.setCantidadReseñas(publicacionAlojamiento.getCantidadReseñas()-1);
+        publicacionAlojamiento.getReviews().remove(review);
+        int sum = 0;
+        for(Review r : publicacionAlojamiento.getReviews()) {
+            sum += r.getCalificacion();
+        }
+        double promedio = (double) sum / publicacionAlojamiento.getCantidadReseñas();
+        DecimalFormat df = new DecimalFormat("#.##");
+        String roundedPromedio = df.format(promedio);
+        promedio = Double.parseDouble(roundedPromedio);
+        publicacionAlojamiento.setPromedioRating(promedio);
+        publicacionAlojamientoRespositorio.save(publicacionAlojamiento);
         reviewRepository.deleteById(id);
     }
+
     public void actualizarContenido(Long publicacionAlojamientoId, Long reviewId,String contenido){
         Optional<PublicacionAlojamiento> publicacionAlojamientoOptional = publicacionAlojamientoRespositorio.findById(publicacionAlojamientoId);
         if (publicacionAlojamientoOptional.isEmpty()) {
@@ -195,6 +207,7 @@ public class ReviewServicio {
         }
         return responseReviewDTOS;
     }
+
     public Double obtenerPromedioCalificacion(Long publicacionId){
         PublicacionAlojamiento publicacionAlojamiento = publicacionAlojamientoRespositorio.findById(publicacionId).
                 orElseThrow(()->new EntityNotFoundException("Publicacion no encontrada"));
@@ -204,10 +217,12 @@ public class ReviewServicio {
     private ResponseReviewDTO mapToResponseDTO(Review review) {
         ResponseReviewDTO dto = new ResponseReviewDTO();
         dto.setReviewId(review.getId());
-        dto.setAutorFullname(review.getAutorR().getUsername());
+        dto.setAutorFullname(review.getAutorR().getPrimerNombre() + " " + review.getAutorR().getPrimerApellido());
         dto.setContenido(review.getComentario());
         dto.setCalificacion(review.getCalificacion());
-        if (!review.getAutorR().getFotoUrl().isEmpty()) {
+        dto.setPublicacionId(review.getPublicacionAlojamiento().getId());
+        dto.setAutorId(review.getAutorR().getId());
+        if (review.getAutorR().getFotoUrl() != null) {
             dto.setAutorFotoUrl(review.getAutorR().getFotoUrl());
         } else {
             dto.setAutorFotoUrl(null);

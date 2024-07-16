@@ -18,32 +18,35 @@ import java.util.List;
 public class ReviewController {
     @Autowired
     private ReviewServicio reviewServicio;
-    @PreAuthorize("hasRole('ROLE_TRAVELER') ")
+
     @PostMapping()
     public ResponseEntity<Void> createReview(@RequestBody ReviewRequest reviewDTO) {
         Long reviewId = reviewServicio.createReview(reviewDTO);
         URI location = URI.create("/review/" + reviewId);
         return ResponseEntity.created(location).build();
     }
+
     @GetMapping("{publicacionAlojamientoId}")
-    public ResponseEntity<Page<ResponseReviewDTO>> obtenerReviews(@PathVariable Long publicacionAlojamientoId,
-                                                                  @RequestParam Integer page,
-                                                                  @RequestParam Integer size) {
-        return ResponseEntity.ok(reviewServicio.obtenerReviewsPorPublicacionId(publicacionAlojamientoId,page,size));
+    public ResponseEntity<Page<ResponseReviewDTO>> obtenerReviews(
+            @PathVariable Long publicacionAlojamientoId,
+            @RequestParam Integer page,
+            @RequestParam Integer size) {
+        return ResponseEntity.ok(reviewServicio.obtenerReviewsPorPublicacionId(publicacionAlojamientoId, page, size));
     }
+
+
     @GetMapping("{publicacionAlojamientoId}/{reviewId}")
     public ResponseEntity<ResponseReviewDTO> obtenerReview(@PathVariable Long publicacionAlojamientoId, Long reviewId){
         ResponseReviewDTO dto = reviewServicio.getReview(publicacionAlojamientoId,reviewId);
         return ResponseEntity.ok(dto);
     }
 
-    @PreAuthorize("hasRole('ROLE_TRAVELER') ")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> elimarReviewById(@PathVariable Long reviewId){
         reviewServicio.eliminarReseña(reviewId);
         return ResponseEntity.noContent().build();
     }
-    @PreAuthorize("hasRole('ROLE_TRAVELER') ")
+
     @PatchMapping("{publicacionAId}/{reviewId}")
     public ResponseEntity<Void> actualizarContenido(@PathVariable Long publicacionAId,
                                                     @PathVariable  Long reviewId,
@@ -51,7 +54,7 @@ public class ReviewController {
         reviewServicio.actualizarContenido(publicacionAId,reviewId,contenido);
         return ResponseEntity.accepted().build();
     }
-    @PreAuthorize("hasRole('ROLE_TRAVELER')")
+
     @PatchMapping("/{publicacionId}/{reviewId}/calificacion")
     public ResponseEntity<Void> actualizarCalificacion(@PathVariable Long reviewId,
                                                        @PathVariable Long publicacionId,

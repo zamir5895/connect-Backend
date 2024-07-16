@@ -36,6 +36,7 @@ public class ResponsePublicacionAlojamiento {
     private String autorPhotoUrl;
     private int cantidadReviews;
     private Double promedioRating;
+    private String autorNumber;
     @NotNull
     private Double latitude;
     @NotNull
