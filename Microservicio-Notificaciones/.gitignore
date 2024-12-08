@@ -1,0 +1,80 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test coverage
+coverage/
+
+# PM2 or other process managers
+pm2-logs/
+*.pid
+*.pid.lock
+
+# IDE/Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Debugging files
+.nyc_output/
+.v8/
+
+# Package lock files (optional, if you don't want to lock dependencies)
+# Uncomment the following line if you prefer to ignore lock files:
+# package-lock.json
+# yarn.lock
+
+# TypeScript specific
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm/
+
+# Docker files (if using Docker)
+docker-compose.override.yml
+.dockerignore
+
+# Binaries
+*.exe
+*.out
+*.app
+
+# ESLint/Prettier specific
+.eslintcache
+.prettiercache
+
+# Additional configurations for CI/CD
+.github/
+.gitlab-ci.yml
+
+# Backups and patches
+*.bak
+*.orig

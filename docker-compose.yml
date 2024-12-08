@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  node-recommended-places:
+    build:
+      context: ./Microservicio-RecommendedPlaces
+      dockerfile: Dockerfile
+    container_name: microservicio-recommended-places
+    command: node server.js
+    volumes:
+      - ./Microservicio-RecommendedPlaces:/app
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+  node-backend-chat:
+    build:
+      context: ./Microservicio-Mensajeria
+      dockerfile: Dockerfile
+    container_name: node-backend-chat
+    command: node server.js
+    volumes:
+      - ./Microservicio-Mensajeria:/app
+    ports:
+      - "2500:2500"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+  node-backend-notificaciones:
+    build:
+      context: ./Microservicio-Notificaciones
+      dockerfile: Dockerfile
+    container_name: node-backend-notificaciones
+    command: node server.js
+    volumes:
+      - ./Microservicio-Notificaciones:/app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+  spring-backend-places:
+    build:
+      context: ./Microservicio-Places/places
+      dockerfile: Dockerfile
+    container_name: spring-backend-places
+    command: java -jar places.jar
+    volumes:
+      - ./Microservicio-Places/places:/app
+    ports:
+      - "8090:8090"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+  spring-backend-publicaciones:
+    build:
+      context: ./Microservicio-Publications/publicaciones
+      dockerfile: Dockerfile
+    container_name: spring-backend-publicaciones
+    command: java -jar publicaciones.jar
+    volumes:
+      - ./Microservicio-Publications/publicaciones:/app
+    ports:
+      - "8085:8085"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+  spring-backend-usuarios:
+    build:
+      context: ./Microservicio-Usuario/Usuarios
+      dockerfile: Dockerfile
+    container_name: spring-backend-usuarios
+    command: java -jar usuarios.jar
+    volumes:
+      - ./Microservicio-Usuario/Usuarios:/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+networks:
+  dbp:
+    external: true

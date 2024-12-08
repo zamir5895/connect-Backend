@@ -1,0 +1,17 @@
+services:
+  spring-backend:
+    build: .
+    container_name: spring-backend-publicaciones
+    command: java -jar publicaciones.jar
+    volumes:
+      - .:/app
+    ports:
+      - "8085:8085"
+    env_file:
+      - .env
+    networks:
+      - dbp
+
+networks:
+  dbp:
+    external: true

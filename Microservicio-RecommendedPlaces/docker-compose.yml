@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  node-backend:
+    build: .
+    container_name: microservicio-recommended-places
+    command: node server.js
+    volumes:
+      - .:/app
+    ports:
+      - "4000:4000"
+    env_file:                
+      - .env
+    networks:
+      - dbp
+
+networks:
+  dbp:
+    external: true
